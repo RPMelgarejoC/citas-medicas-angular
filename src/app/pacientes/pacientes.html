@@ -1,1 +1,50 @@
-<p>pacientes works!</p>
+<!-- <p>pacientes works!</p> -->
+<div class="container">
+
+  <h2 class="mb-4">Pacientes</h2>
+
+  <!-- FORMULARIO -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Nuevo Paciente</h5>
+
+      <input class="form-control mb-2" placeholder="Nombre" [(ngModel)]="nuevoPaciente.nombre">
+      <input class="form-control mb-2" placeholder="Apellido" [(ngModel)]="nuevoPaciente.apellido">
+      <input type="number" class="form-control mb-2" placeholder="Edad" [(ngModel)]="nuevoPaciente.edad">
+      <input class="form-control mb-2" placeholder="Teléfono" [(ngModel)]="nuevoPaciente.telefono">
+      <input class="form-control mb-2" placeholder="Email" [(ngModel)]="nuevoPaciente.email">
+
+      <button class="btn btn-primary" (click)="agregarPaciente()">Guardar</button>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Apellido</th>
+        <th>Edad</th>
+        <th>Teléfono</th>
+        <th>Email</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let p of pacientes">
+        <td>{{ p.nombre }}</td>
+        <td>{{ p.apellido }}</td>
+        <td>{{ p.edad }}</td>
+        <td>{{ p.telefono }}</td>
+        <td>{{ p.email }}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" (click)="eliminarPaciente(p.id)">
+            Eliminar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+</div>
