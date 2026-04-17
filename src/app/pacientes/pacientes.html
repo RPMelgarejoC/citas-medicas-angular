@@ -14,7 +14,9 @@
       <input class="form-control mb-2" placeholder="Teléfono" [(ngModel)]="nuevoPaciente.telefono">
       <input class="form-control mb-2" placeholder="Email" [(ngModel)]="nuevoPaciente.email">
 
-      <button class="btn btn-primary" (click)="agregarPaciente()">Guardar</button>
+      <button class="btn btn-primary" (click)="agregarPaciente()">
+        {{ editando ? 'Actualizar' : 'Guardar' }}
+      </button>
     </div>
   </div>
 
@@ -32,6 +34,7 @@
     </thead>
 
     <tbody>
+        <!--
       <tr *ngFor="let p of pacientes">
         <td>{{ p.nombre }}</td>
         <td>{{ p.apellido }}</td>
@@ -44,6 +47,24 @@
           </button>
         </td>
       </tr>
+      -->
+      @for (p of pacientes; track p.id) {
+        <tr>
+            <td>{{ p.nombre }}</td>
+            <td>{{ p.apellido }}</td>
+            <td>{{ p.edad }}</td>
+            <td>{{ p.telefono }}</td>
+            <td>{{ p.email }}</td>
+            <td>
+            <button class="btn btn-warning btn-sm me-2" (click)="editarPaciente(p)">
+                Editar
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="eliminarPaciente(p.id)">
+                Eliminar
+            </button>
+            </td>
+        </tr>
+        }
     </tbody>
   </table>
 

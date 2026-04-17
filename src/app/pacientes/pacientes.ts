@@ -1,15 +1,19 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { NgFor } from '@angular/common';
+//import { NgFor } from '@angular/common';
+
 
 @Component({
   selector: 'app-pacientes',
-  imports: [FormsModule, NgFor],
+  imports: [FormsModule],
   templateUrl: './pacientes.html',
   styleUrl: './pacientes.css',
 })
 export class Pacientes {
   pacientes: any[] = [];
+
+  editando: boolean = false;
+  idEditando: number | null = null;
 
   nuevoPaciente = {
     nombre: '',
@@ -20,12 +24,26 @@ export class Pacientes {
   };
 
   agregarPaciente() {
-    const paciente = {
-      id: Date.now(),
-      ...this.nuevoPaciente
-    };
+    if (this.editando) {
+      // EDITAR
+      this.pacientes = this.pacientes.map(p =>
+        p.id === this.idEditando
+          ? { id: this.idEditando, ...this.nuevoPaciente }
+          : p
+      );
 
-    this.pacientes.push(paciente);
+      this.editando = false;
+      this.idEditando = null;
+
+    } else {
+      // CREAR
+      const paciente = {
+        id: Date.now(),
+        ...this.nuevoPaciente
+      };
+
+      this.pacientes.push(paciente);
+    }
 
     // limpiar formulario
     this.nuevoPaciente = {
@@ -35,6 +53,12 @@ export class Pacientes {
       telefono: '',
       email: ''
     };
+  }
+
+  editarPaciente(p: any) {
+    this.nuevoPaciente = { ...p };
+    this.editando = true;
+    this.idEditando = p.id;
   }
 
   eliminarPaciente(id: number) {
