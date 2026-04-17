@@ -22,6 +22,12 @@ export class Pacientes implements OnInit{
   editando: boolean = false;
   idEditando: number | null = null;
 
+  mostrarFormulario = false;
+
+  mostrarToast = false;
+  mensajeToast = '';
+  tipoToast = 'success'; // success, error
+
   nuevoPaciente = {
     nombre: '',
     apellido: '',
@@ -41,30 +47,17 @@ export class Pacientes implements OnInit{
     this.cdr.detectChanges(); // 🔥 CLAVE
   }
 
-  /*
-  agregarPaciente() {
-    if (this.editando) {
-      // EDITAR
-      this.pacientes = this.pacientes.map(p =>
-        p.id === this.idEditando
-          ? { id: this.idEditando, ...this.nuevoPaciente }
-          : p
-      );
 
-      this.editando = false;
-      this.idEditando = null;
+  abrirFormulario() {
+    this.mostrarFormulario = true;
+  }
 
-    } else {
-      // CREAR
-      const paciente = {
-        id: Date.now(),
-        ...this.nuevoPaciente
-      };
+  cerrarFormulario() {
+    this.mostrarFormulario = false;
 
-      this.pacientes.push(paciente);
-    }
+    this.editando = false;
+    this.idEditando = null;
 
-    // limpiar formulario
     this.nuevoPaciente = {
       nombre: '',
       apellido: '',
@@ -72,8 +65,17 @@ export class Pacientes implements OnInit{
       telefono: '',
       email: ''
     };
+
+    this.cdr.detectChanges(); // 🔥 aquí mejor
   }
-  */
+  
+  editarPaciente(p: any) {
+    this.nuevoPaciente = { ...p };
+    this.editando = true;
+    this.idEditando = p.id;
+
+    this.mostrarFormulario = true; // 🔥 clave
+  }
 
   async agregarPaciente() {
 
@@ -82,6 +84,8 @@ export class Pacientes implements OnInit{
       alert("Nombre y apellido son obligatorios");
       return;
     }
+
+    const eraEdicion = this.editando;
 
     const paciente = {
       id: this.editando ? this.idEditando : Date.now(),
@@ -106,16 +110,45 @@ export class Pacientes implements OnInit{
     };
 
     await this.cargarPacientes();
-  }
+    this.cerrarFormulario();
 
-  editarPaciente(p: any) {
-    this.nuevoPaciente = { ...p };
-    this.editando = true;
-    this.idEditando = p.id;
+    this.mostrarNotificacion(
+      eraEdicion ? 'Paciente actualizado correctamente' : 'Paciente registrado correctamente'
+    );
   }
 
   async eliminarPaciente(id: number) {
+    const citas = await this.contarCitasPaciente(id);
+
+    let mensaje = '¿Seguro que deseas eliminar este paciente?';
+
+    if (citas.length > 0) {
+      mensaje += `\n⚠️ Tiene ${citas.length} cita(s) registrada(s).`;
+    }
+
+    const confirmar = confirm(mensaje);
+
+    if (!confirmar) return;
+
     await this.dbService.eliminarPaciente(id);
     await this.cargarPacientes();
+    
+    this.mostrarNotificacion('Paciente eliminado correctamente', 'success');
+  }
+  
+  mostrarNotificacion(mensaje: string, tipo: string = 'success') {
+    this.mensajeToast = mensaje;
+    this.tipoToast = tipo;
+    this.mostrarToast = true;
+
+    setTimeout(() => {
+      this.mostrarToast = false;
+      this.cdr.detectChanges();
+    }, 2500);
+  }
+
+  async contarCitasPaciente(idPaciente: number) {
+    const citas = await this.dbService.obtenerCitas();
+    return citas.filter(c => c.idPaciente == idPaciente);
   }
 }
