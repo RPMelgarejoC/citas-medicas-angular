@@ -345,12 +345,13 @@
 <!--
 <router-outlet />
 -->
-
+<!--
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
   <div class="container">
     <a class="navbar-brand">Citas Médicas</a>
 
     <div>
+      <a class="btn btn-outline-light me-2" routerLink="/dashboard">Dashboard</a>
       <a class="btn btn-outline-light me-2" routerLink="/pacientes">Pacientes</a>
       <a class="btn btn-outline-light me-2" routerLink="/medicos">Médicos</a>
       <a class="btn btn-outline-light" routerLink="/citas">Citas</a>
@@ -360,4 +361,42 @@
 
 <div class="container mt-4">
   <router-outlet></router-outlet>
+</div>
+-->
+<div class="d-flex">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar p-3" [class.active]="sidebarOpen">
+
+    <h4 class="text-white mb-4">Citas App</h4>
+
+    <a routerLink="/dashboard" routerLinkActive="active" class="nav-link" (click)="toggleSidebar()">
+      <i class="bi bi-speedometer2 me-2"></i> Dashboard
+    </a>
+
+    <a routerLink="/pacientes" routerLinkActive="active" class="nav-link" (click)="toggleSidebar()">
+      <i class="bi bi-people me-2"></i> Pacientes
+    </a>
+
+    <a routerLink="/medicos" routerLinkActive="active" class="nav-link" (click)="toggleSidebar()">
+      <i class="bi bi-person-badge me-2"></i> Médicos
+    </a>
+
+    <a routerLink="/citas" routerLinkActive="active" class="nav-link" (click)="toggleSidebar()">
+      <i class="bi bi-calendar-check me-2"></i> Citas
+    </a>
+
+  </div>
+
+  <!-- CONTENIDO -->
+  <div class="content p-4">
+
+    <!-- BOTÓN MÓVIL -->
+    <button class="btn btn-dark d-md-none mb-3 toggle-btn" (click)="toggleSidebar()">
+      ☰
+    </button>
+
+    <router-outlet></router-outlet>
+  </div>
+
 </div>

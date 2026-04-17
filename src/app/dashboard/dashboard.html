@@ -1,0 +1,106 @@
+<!-- <p>dashboard works!</p> -->
+
+<div class="container">
+
+  <h2 class="mb-4">Dashboard</h2>
+
+  <!-- CARDS -->
+  <div class="row mb-4">
+
+    <div class="col-md-4">
+      <div class="card text-white bg-primary shadow">
+        <div class="card-body">
+          <h5>Pacientes</h5>
+          <h2>{{ pacientes.length }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-success shadow">
+        <div class="card-body">
+          <h5>Médicos</h5>
+          <h2>{{ medicos.length }}</h2>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card text-white bg-danger shadow">
+        <div class="card-body">
+          <h5>Citas</h5>
+          <h2>{{ citas.length }}</h2>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="row">
+
+    @for (fecha of obtenerFechas(); track fecha) {
+
+        <div class="col-md-6 mb-4">
+
+        <div class="card shadow-sm">
+
+            <div class="card-header bg-dark text-white">
+            📅 {{ fecha }}
+            </div>
+
+            <div class="card-body">
+
+            @for (c of citasAgrupadas[fecha]; track c.id) {
+
+                <div class="p-2 mb-2 rounded border d-flex justify-content-between align-items-center"
+                    [class]="'border-' + obtenerColorMedico(c.idMedico)">
+
+                <div>
+                    <strong>{{ c.hora }}</strong> <br>
+                    {{ obtenerNombreMedico(c.idMedico) }}
+                </div>
+
+                <span class="badge bg-{{ obtenerColorMedico(c.idMedico) }}">
+                    Cita
+                </span>
+
+                </div>
+
+            }
+
+            </div>
+
+        </div>
+
+        </div>
+
+    }
+
+    </div>
+  <!-- LISTA DE CITAS -->
+  <div class="card shadow">
+    <div class="card-body">
+
+      <h5 class="mb-3">Próximas Citas</h5>
+
+      <ul class="list-group">
+        @for (c of citas; track c.id) {
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+
+            <div>
+              <strong>{{ c.fecha }}</strong> - {{ c.hora }} <br>
+              Médico: {{ obtenerNombreMedico(c.idMedico) }}
+            </div>
+
+            <span class="badge bg-{{ obtenerColorMedico(c.idMedico) }}">
+              Cita
+            </span>
+
+          </li>
+        }
+      </ul>
+
+    </div>
+  </div>
+
+</div>
