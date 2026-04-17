@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 //import { NgFor } from '@angular/common';
-
+import { Db } from '../services/db';
+import { OnInit, ChangeDetectorRef } from '@angular/core';
 
 @Component({
   selector: 'app-pacientes',
@@ -9,7 +10,13 @@ import { FormsModule } from '@angular/forms';
   templateUrl: './pacientes.html',
   styleUrl: './pacientes.css',
 })
-export class Pacientes {
+export class Pacientes implements OnInit{
+
+  constructor(
+    private dbService: Db,
+    private cdr: ChangeDetectorRef
+  ) {}
+
   pacientes: any[] = [];
 
   editando: boolean = false;
@@ -23,6 +30,18 @@ export class Pacientes {
     email: ''
   };
 
+  async ngOnInit() {
+    await this.dbService.initDB();
+    this.cargarPacientes();
+  }
+
+  async cargarPacientes() {
+    this.pacientes = await this.dbService.obtenerPacientes();
+    console.log("Pacientes cargados:", this.pacientes);
+    this.cdr.detectChanges(); // 🔥 CLAVE
+  }
+
+  /*
   agregarPaciente() {
     if (this.editando) {
       // EDITAR
@@ -54,6 +73,40 @@ export class Pacientes {
       email: ''
     };
   }
+  */
+
+  async agregarPaciente() {
+
+    // VALIDACIÓN SIMPLE
+    if (!this.nuevoPaciente.nombre || !this.nuevoPaciente.apellido) {
+      alert("Nombre y apellido son obligatorios");
+      return;
+    }
+
+    const paciente = {
+      id: this.editando ? this.idEditando : Date.now(),
+      ...this.nuevoPaciente
+    };
+
+    if (this.editando) {
+      await this.dbService.actualizarPaciente(paciente); // 🔥 UPDATE
+    } else {
+      await this.dbService.agregarPaciente(paciente); // CREATE
+    }
+
+    this.editando = false;
+    this.idEditando = null;
+
+    this.nuevoPaciente = {
+      nombre: '',
+      apellido: '',
+      edad: 0,
+      telefono: '',
+      email: ''
+    };
+
+    await this.cargarPacientes();
+  }
 
   editarPaciente(p: any) {
     this.nuevoPaciente = { ...p };
@@ -61,7 +114,8 @@ export class Pacientes {
     this.idEditando = p.id;
   }
 
-  eliminarPaciente(id: number) {
-    this.pacientes = this.pacientes.filter(p => p.id !== id);
+  async eliminarPaciente(id: number) {
+    await this.dbService.eliminarPaciente(id);
+    await this.cargarPacientes();
   }
 }
