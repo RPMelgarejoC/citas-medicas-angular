@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 
 const DB_NAME = 'citasDB';
-const DB_VERSION = 2;
+const DB_VERSION = 3;
 const STORE_PACIENTES = 'pacientes';
 const STORE_MEDICOS = 'medicos';
+const STORE_CITAS = 'citas';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +33,10 @@ export class Db {
           
         if (!db.objectStoreNames.contains(STORE_MEDICOS)) {
           db.createObjectStore(STORE_MEDICOS, { keyPath: 'id' });
+        }
+
+        if (!db.objectStoreNames.contains(STORE_CITAS)) {
+          db.createObjectStore(STORE_CITAS, { keyPath: 'id' });
         }
       };
     });
@@ -138,6 +143,58 @@ export class Db {
 
       request.onsuccess = () => resolve();
       request.onerror = () => reject('Error al eliminar médico');
+    });
+  }
+
+  agregarCita(cita: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_CITAS, 'readwrite');
+      const store = tx.objectStore(STORE_CITAS);
+
+      const request = store.add(cita);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject('Error al guardar cita');
+    });
+  }
+
+  obtenerCitas(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_CITAS, 'readonly');
+      const store = tx.objectStore(STORE_CITAS);
+
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject('Error al obtener citas');
+    });
+  }
+
+  actualizarCita(cita: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_CITAS, 'readwrite');
+      const store = tx.objectStore(STORE_CITAS);
+
+      const request = store.put(cita);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject('Error al actualizar cita');
+    });
+  }
+
+  eliminarCita(id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_CITAS, 'readwrite');
+      const store = tx.objectStore(STORE_CITAS);
+
+      const request = store.delete(id);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject('Error al eliminar cita');
     });
   }
 

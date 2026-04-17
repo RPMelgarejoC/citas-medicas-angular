@@ -1,1 +1,74 @@
-<p>citas works!</p>
+<!-- <p>citas works!</p> -->
+ <div class="container">
+
+  <h2 class="mb-4">Citas Médicas</h2>
+
+  <!-- FORMULARIO -->
+  <div class="card mb-4">
+    <div class="card-body">
+
+      <h5>Nueva Cita</h5>
+
+      <!-- PACIENTE -->
+      <select class="form-control mb-2" [(ngModel)]="nuevaCita.idPaciente">
+        <option value="">Seleccione paciente</option>
+        @for (p of pacientes; track p.id) {
+          <option [value]="p.id">{{ p.nombre }} {{ p.apellido }}</option>
+        }
+      </select>
+
+      <!-- MEDICO -->
+      <select class="form-control mb-2" [(ngModel)]="nuevaCita.idMedico">
+        <option value="">Seleccione médico</option>
+        @for (m of medicos; track m.id) {
+          <option [value]="m.id">{{ m.nombre }}</option>
+        }
+      </select>
+
+      <input type="date" class="form-control mb-2" [(ngModel)]="nuevaCita.fecha">
+      <input type="time" class="form-control mb-2" [(ngModel)]="nuevaCita.hora">
+      <input class="form-control mb-2" placeholder="Motivo" [(ngModel)]="nuevaCita.motivo">
+
+      <button class="btn btn-primary" (click)="guardarCita()">
+        {{ editando ? 'Actualizar' : 'Guardar' }}
+      </button>
+
+    </div>
+  </div>
+
+  <!-- TABLA -->
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Paciente</th>
+        <th>Médico</th>
+        <th>Fecha</th>
+        <th>Hora</th>
+        <th>Motivo</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (c of citas; track c.id) {
+        <tr>
+          <td>{{ obtenerNombrePaciente(c.idPaciente) }}</td>
+          <td>{{ obtenerNombreMedico(c.idMedico) }}</td>
+          <td>{{ c.fecha }}</td>
+          <td>{{ c.hora }}</td>
+          <td>{{ c.motivo }}</td>
+          <td>
+            <button class="btn btn-warning btn-sm me-2" (click)="editarCita(c)">
+              Editar
+            </button>
+
+            <button class="btn btn-danger btn-sm" (click)="eliminarCita(c.id)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+</div>
