@@ -7,6 +7,7 @@
 <!-- * * * * * * * to get started with your project! * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
+<!--
 <style>
   :host {
     --bright-blue: oklch(51.01% 0.274 263.83);
@@ -185,6 +186,7 @@
 </style>
 
 <main class="main">
+  
   <div class="content">
     <div class="left-side">
       <svg
@@ -331,7 +333,7 @@
     </div>
   </div>
 </main>
-
+-->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * The content above * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * * -->
@@ -340,5 +342,22 @@
 <!-- * * * * * * * * * * End of Placeholder  * * * * * * * * * * * * -->
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
-
+<!--
 <router-outlet />
+-->
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container">
+    <a class="navbar-brand">Citas Médicas</a>
+
+    <div>
+      <a class="btn btn-outline-light me-2" routerLink="/pacientes">Pacientes</a>
+      <a class="btn btn-outline-light me-2" routerLink="/medicos">Médicos</a>
+      <a class="btn btn-outline-light" routerLink="/citas">Citas</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <router-outlet></router-outlet>
+</div>
