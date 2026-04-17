@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 
 const DB_NAME = 'citasDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const STORE_PACIENTES = 'pacientes';
+const STORE_MEDICOS = 'medicos';
 
 @Injectable({
   providedIn: 'root',
@@ -27,6 +28,10 @@ export class Db {
 
         if (!db.objectStoreNames.contains(STORE_PACIENTES)) {
           db.createObjectStore(STORE_PACIENTES, { keyPath: 'id' });
+        }
+          
+        if (!db.objectStoreNames.contains(STORE_MEDICOS)) {
+          db.createObjectStore(STORE_MEDICOS, { keyPath: 'id' });
         }
       };
     });
@@ -83,4 +88,57 @@ export class Db {
       request.onerror = () => reject('Error al eliminar');
     });
   }
+
+  agregarMedico(medico: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_MEDICOS, 'readwrite');
+      const store = tx.objectStore(STORE_MEDICOS);
+
+      const request = store.add(medico);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject('Error al guardar médico');
+    });
+  }
+
+  obtenerMedicos(): Promise<any[]> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_MEDICOS, 'readonly');
+      const store = tx.objectStore(STORE_MEDICOS);
+
+      const request = store.getAll();
+
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject('Error al obtener médicos');
+    });
+  }
+
+  actualizarMedico(medico: any): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_MEDICOS, 'readwrite');
+      const store = tx.objectStore(STORE_MEDICOS);
+
+      const request = store.put(medico);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject('Error al actualizar médico');
+    });
+  }
+
+  eliminarMedico(id: number): Promise<void> {
+    return new Promise((resolve, reject) => {
+
+      const tx = this.db!.transaction(STORE_MEDICOS, 'readwrite');
+      const store = tx.objectStore(STORE_MEDICOS);
+
+      const request = store.delete(id);
+
+      request.onsuccess = () => resolve();
+      request.onerror = () => reject('Error al eliminar médico');
+    });
+  }
+
 }

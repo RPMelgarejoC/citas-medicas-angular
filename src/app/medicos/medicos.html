@@ -1,1 +1,53 @@
-<p>medicos works!</p>
+<!-- <p>medicos works!</p> -->
+
+<div class="container">
+
+  <h2 class="mb-4">Médicos</h2>
+
+  <!-- FORMULARIO -->
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5>Nuevo Médico</h5>
+
+      <input class="form-control mb-2" placeholder="Nombre" [(ngModel)]="nuevoMedico.nombre">
+      <input class="form-control mb-2" placeholder="Especialidad" [(ngModel)]="nuevoMedico.especialidad">
+      <input class="form-control mb-2" placeholder="Teléfono" [(ngModel)]="nuevoMedico.telefono">
+
+      <button class="btn btn-primary" (click)="agregarMedico()">
+        {{ editando ? 'Actualizar' : 'Guardar' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <table class="table table-bordered">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Especialidad</th>
+        <th>Teléfono</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      @for (m of medicos; track m.id) {
+        <tr>
+          <td>{{ m.nombre }}</td>
+          <td>{{ m.especialidad }}</td>
+          <td>{{ m.telefono }}</td>
+          <td>
+            <button class="btn btn-warning btn-sm me-2" (click)="editarMedico(m)">
+              Editar
+            </button>
+
+            <button class="btn btn-danger btn-sm" (click)="eliminarMedico(m.id)">
+              Eliminar
+            </button>
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+</div>
