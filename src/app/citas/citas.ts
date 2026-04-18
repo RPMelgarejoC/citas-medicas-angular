@@ -1,10 +1,11 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { CommonModule, CurrencyPipe } from '@angular/common'; // 🔥 Agregar CurrencyPipe
 import { Db } from '../services/db';
 
 @Component({
   selector: 'app-citas',
-  imports: [FormsModule],
+  imports: [FormsModule, CommonModule],
   templateUrl: './citas.html',
   styleUrl: './citas.css',
 })
@@ -34,13 +35,18 @@ export class Citas implements OnInit {
     idMedico: '',
     fecha: '',
     hora: '',
-    motivo: ''
+    tipoCita: 'Consulta General',
+    estado: 'Programada',
+    duracion: 30,
+    costo: 0,
+    motivo: '',
+    notas: '',
+    recordatorio: false
   };
 
   // Horario laboral
-  HORA_INICIO = 8;   // 8:00 AM
-  HORA_FIN = 18;     // 6:00 PM
-  DIAS_LABORALES = [1, 2, 3, 4, 5]; // Lunes a Viernes
+  HORA_INICIO = 8;
+  HORA_FIN = 18;
 
   // Opciones de horas con intervalos de 30 minutos
   opcionesHoras: string[] = [];
@@ -48,13 +54,33 @@ export class Citas implements OnInit {
   // Horas disponibles para el médico seleccionado
   horasDisponibles: string[] = [];
 
+  // Opciones para selects
+  tiposCita = [
+    'Consulta General',
+    'Emergencia',
+    'Control',
+    'Especialista',
+    'Vacunación',
+    'Examen Médico'
+  ];
+
+  estadosCita = [
+    'Programada',
+    'Confirmada',
+    'En curso',
+    'Completada',
+    'Cancelada',
+    'No asistió'
+  ];
+
+  duraciones = [15, 30, 45, 60, 90, 120];
+
   async ngOnInit() {
     await this.dbService.initDB();
     await this.cargarDatos();
     this.generarOpcionesHoras();
   }
 
-  // Generar horas cada 30 minutos: 8:00, 8:30, 9:00, ..., 17:30
   generarOpcionesHoras() {
     this.opcionesHoras = [];
     for (let hora = this.HORA_INICIO; hora < this.HORA_FIN; hora++) {
@@ -84,7 +110,13 @@ export class Citas implements OnInit {
       idMedico: '',
       fecha: '',
       hora: '',
-      motivo: ''
+      tipoCita: 'Consulta General',
+      estado: 'Programada',
+      duracion: 30,
+      costo: 0,
+      motivo: '',
+      notas: '',
+      recordatorio: false
     };
     
     this.horasDisponibles = [];
@@ -96,16 +128,14 @@ export class Citas implements OnInit {
     this.idEditando = c.id;
     this.mostrarFormulario = true;
     
-    // Cargar horas disponibles para el médico seleccionado
     if (this.nuevaCita.idMedico && this.nuevaCita.fecha) {
       this.cargarHorasDisponibles();
     }
   }
 
-  // ✅ VALIDAR QUE LA FECHA NO SEA PASADA
   validarFechaNoPasada(fecha: string): boolean {
     const hoy = new Date();
-    hoy.setHours(0, 0, 0, 0); // Resetear hora para comparar solo fechas
+    hoy.setHours(0, 0, 0, 0);
     
     const partes = fecha.split('-');
     const fechaSeleccionada = new Date(
@@ -122,7 +152,6 @@ export class Citas implements OnInit {
     return true;
   }
 
-  // ✅ VALIDAR HORARIO LABORAL
   validarHorarioLaboral(fecha: string, hora: string): boolean {
     const partes = fecha.split('-');
     const año = parseInt(partes[0]);
@@ -132,7 +161,6 @@ export class Citas implements OnInit {
     const fechaObj = new Date(año, mes, dia);
     const diaSemana = fechaObj.getDay();
     
-    // Días NO laborables: Domingo(0) o Sábado(6)
     if (diaSemana === 0) {
       this.mostrarNotificacion('❌ Los domingos no hay consulta médica', 'error');
       return false;
@@ -146,7 +174,6 @@ export class Citas implements OnInit {
     return true;
   }
 
-  // ✅ CARGAR HORAS DISPONIBLES PARA EL MÉDICO SELECCIONADO
   async cargarHorasDisponibles() {
     if (!this.nuevaCita.idMedico || !this.nuevaCita.fecha) {
       this.horasDisponibles = [];
@@ -155,19 +182,16 @@ export class Citas implements OnInit {
     
     const citasExistentes = await this.dbService.obtenerCitas();
     
-    // Obtener horas ya ocupadas por este médico en esta fecha
     const horasOcupadas = citasExistentes
       .filter(c => 
         Number(c.idMedico) === Number(this.nuevaCita.idMedico) && 
         c.fecha === this.nuevaCita.fecha &&
-        c.id !== this.idEditando // Excluir la cita actual si es edición
+        c.id !== this.idEditando
       )
       .map(c => c.hora);
     
-    // Filtrar horas disponibles (todas las horas menos las ocupadas)
     this.horasDisponibles = this.opcionesHoras.filter(h => !horasOcupadas.includes(h));
     
-    // Si la hora actual seleccionada ya no está disponible, limpiarla
     if (this.nuevaCita.hora && !this.horasDisponibles.includes(this.nuevaCita.hora)) {
       this.nuevaCita.hora = '';
       this.mostrarNotificacion('⚠️ La hora seleccionada ya no está disponible', 'error');
@@ -176,7 +200,6 @@ export class Citas implements OnInit {
     this.cdr.detectChanges();
   }
 
-  // ✅ VALIDAR DOBLE RESERVA
   async validarDobleReserva(): Promise<boolean> {
     const citasExistentes = await this.dbService.obtenerCitas();
     
@@ -189,14 +212,13 @@ export class Citas implements OnInit {
 
     if (citaDuplicada) {
       const medico = this.medicos.find(m => m.id == this.nuevaCita.idMedico);
-      this.mostrarNotificacion(`❌ El Dr. ${medico?.nombre} ya tiene una cita el ${this.nuevaCita.fecha} a las ${this.nuevaCita.hora}`, 'error');
+      this.mostrarNotificacion(`❌ El Dr. ${medico?.nombre} ya tiene una cita en ese horario`, 'error');
       return false;
     }
 
     return true;
   }
 
-  // ✅ VALIDAR DOBLE CITA DEL PACIENTE
   async validarDobleCitaPaciente(): Promise<boolean> {
     const citasExistentes = await this.dbService.obtenerCitas();
     
@@ -209,34 +231,29 @@ export class Citas implements OnInit {
 
     if (citaDuplicada) {
       const paciente = this.pacientes.find(p => p.id == this.nuevaCita.idPaciente);
-      this.mostrarNotificacion(`❌ El paciente ${paciente?.nombre} ya tiene una cita el ${this.nuevaCita.fecha} a las ${this.nuevaCita.hora}`, 'error');
+      this.mostrarNotificacion(`❌ El paciente ${paciente?.nombre} ya tiene una cita en ese horario`, 'error');
       return false;
     }
 
     return true;
   }
 
-  // ✅ CUANDO CAMBIA EL MÉDICO
   onMedicoChange() {
     this.nuevaCita.hora = '';
     this.cargarHorasDisponibles();
   }
 
-  // ✅ CUANDO CAMBIA LA FECHA
   onFechaChange() {
     this.nuevaCita.hora = '';
     if (this.nuevaCita.fecha) {
-      // Validar fecha pasada
       if (!this.validarFechaNoPasada(this.nuevaCita.fecha)) {
         this.nuevaCita.fecha = '';
         return;
       }
-      // Validar horario laboral
       if (!this.validarHorarioLaboral(this.nuevaCita.fecha, '')) {
         this.nuevaCita.fecha = '';
         return;
       }
-      // Cargar horas disponibles
       if (this.nuevaCita.idMedico) {
         this.cargarHorasDisponibles();
       }
@@ -244,7 +261,6 @@ export class Citas implements OnInit {
   }
 
   async guardarCita() {
-    // Validaciones básicas
     if (!this.nuevaCita.idPaciente || !this.nuevaCita.idMedico) {
       this.mostrarNotificacion('❌ Debe seleccionar paciente y médico', 'error');
       return;
@@ -260,21 +276,17 @@ export class Citas implements OnInit {
       return;
     }
 
-    // Validar fecha pasada (otra vez por seguridad)
     if (!this.validarFechaNoPasada(this.nuevaCita.fecha)) {
       return;
     }
 
-    // Validar horario laboral
     if (!this.validarHorarioLaboral(this.nuevaCita.fecha, this.nuevaCita.hora)) {
       return;
     }
 
-    // Validar doble reserva (médico)
     const reservaValida = await this.validarDobleReserva();
     if (!reservaValida) return;
 
-    // Validar doble cita del paciente
     const pacienteValido = await this.validarDobleCitaPaciente();
     if (!pacienteValido) return;
 
@@ -311,11 +323,24 @@ export class Citas implements OnInit {
 
   obtenerNombrePaciente(id: number) {
     const paciente = this.pacientes.find(p => p.id == id);
-    return paciente ? `${paciente.nombre} ${paciente.apellido}` : '';
+    return paciente ? `${paciente.nombre} ${paciente.apellidoPaterno}` : '';
   }
 
   obtenerNombreMedico(id: number) {
-    return this.medicos.find(m => m.id == id)?.nombre || '';
+    const medico = this.medicos.find(m => m.id == id);
+    return medico ? `${medico.nombre} ${medico.apellidoPaterno}` : '';
+  }
+
+  getEstadoBadgeClass(estado: string): string {
+    const clases: Record<string, string> = {
+      'Programada': 'estado-programada',
+      'Confirmada': 'estado-confirmada',
+      'En curso': 'estado-curso',
+      'Completada': 'estado-completada',
+      'Cancelada': 'estado-cancelada',
+      'No asistió': 'estado-no-asistio'
+    };
+    return clases[estado] || 'estado-programada';
   }
 
   mostrarNotificacion(mensaje: string, tipo: string = 'success') {

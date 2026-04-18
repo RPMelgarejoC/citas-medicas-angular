@@ -1,120 +1,178 @@
 <div class="container">
 
-  <h2 class="mb-4 fw-bold">Citas Médicas</h2>
+  <h2 class="mb-4 fw-bold">Gestión de Citas Médicas</h2>
 
   <button class="btn btn-primary mb-3 shadow-sm" (click)="abrirFormulario()">
     <i class="bi bi-plus-circle me-1"></i> Nueva Cita
   </button>
 
   <!-- TABLA -->
-  <table class="table table-hover table-striped align-middle shadow-sm">
-    <thead>
-      <tr>
-        <th>Paciente</th>
-        <th>Médico</th>
-        <th>Fecha</th>
-        <th>Hora</th>
-        <th>Motivo</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      @for (c of citas; track c.id) {
+  <div class="table-responsive">
+    <table class="table table-hover table-striped align-middle shadow-sm">
+      <thead>
         <tr>
-          <td>{{ obtenerNombrePaciente(c.idPaciente) }}</td>
-          <td>{{ obtenerNombreMedico(c.idMedico) }}</td>
-          <td>{{ c.fecha }}</td>
-          <td>{{ c.hora }}</td>
-          <td>{{ c.motivo }}</td>
-          <td>
-            <button class="btn btn-warning btn-sm me-2" (click)="editarCita(c)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-
-            <button class="btn btn-danger btn-sm" (click)="eliminarCita(c.id)">
-              <i class="bi bi-trash"></i> Eliminar
-            </button>
-          </td>
+          <th>Paciente</th>
+          <th>Médico</th>
+          <th>Fecha</th>
+          <th>Hora</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Costo</th>
+          <th>Acciones</th>
         </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+
+      <tbody>
+        @for (c of citas; track c.id) {
+          <tr>
+            <td>{{ obtenerNombrePaciente(c.idPaciente) }}</td>
+            <td>{{ obtenerNombreMedico(c.idMedico) }}</td>
+            <td>{{ c.fecha }}</td>
+            <td>{{ c.hora }}</td>
+            <td>{{ c.tipoCita }}</td>
+            <td><span class="estado-badge {{ getEstadoBadgeClass(c.estado) }}">{{ c.estado }}</span></td>
+            <td>{{ c.costo }} Bs.</td>
+            <td>
+              <button class="btn btn-warning btn-sm me-2" (click)="editarCita(c)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+
+              <button class="btn btn-danger btn-sm" (click)="eliminarCita(c.id)">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
 </div>
 
 <!-- MODAL UNIFICADO -->
 @if (mostrarFormulario) {
-  <!-- FONDO OSCURO -->
   <div class="overlay" (click)="cerrarFormulario()"></div>
 
-  <!-- MODAL -->
   <div class="modal-custom" (click)="$event.stopPropagation()">
 
     <div class="card shadow">
       <div class="card-body">
 
-        <h5 class="mb-3 text-primary">
+        <h5 class="mb-3">
           {{ editando ? 'Editar Cita' : 'Nueva Cita' }}
         </h5>
 
         <div class="row">
-          <div class="col-12 mb-2">
+          <!-- PACIENTE -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Paciente *</label>
             <select class="form-control" [(ngModel)]="nuevaCita.idPaciente">
               <option value="">Seleccione paciente</option>
               @for (p of pacientes; track p.id) {
-                <option [value]="p.id">{{ p.nombre }} {{ p.apellido }}</option>
+                <option [value]="p.id">{{ p.nombre }} {{ p.apellidoPaterno }}</option>
               }
             </select>
           </div>
 
-          <div class="col-12 mb-2">
+          <!-- MÉDICO -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Médico *</label>
             <select class="form-control" 
                     [(ngModel)]="nuevaCita.idMedico"
                     (ngModelChange)="onMedicoChange()">
               <option value="">Seleccione médico</option>
               @for (m of medicos; track m.id) {
-                <option [value]="m.id">{{ m.nombre }} - {{ m.especialidad }}</option>
+                <option [value]="m.id">{{ m.nombre }} {{ m.apellidoPaterno }} - {{ m.especialidad }}</option>
               }
             </select>
           </div>
 
-          <div class="col-12 mb-2">
+          <!-- FECHA -->
+          <div class="col-md-4 mb-2">
+            <label class="form-label small fw-bold">Fecha *</label>
             <input type="date" 
                    class="form-control" 
                    [(ngModel)]="nuevaCita.fecha"
                    (ngModelChange)="onFechaChange()">
           </div>
 
-          <div class="col-12 mb-2">
+          <!-- HORA -->
+          <div class="col-md-4 mb-2">
+            <label class="form-label small fw-bold">Hora *</label>
             <select class="form-control" 
                     [(ngModel)]="nuevaCita.hora"
                     [disabled]="horasDisponibles.length === 0">
-              <option value="">Seleccione hora disponible</option>
+              <option value="">Seleccione hora</option>
               @for (hora of horasDisponibles; track hora) {
                 <option [value]="hora">{{ hora }}</option>
               }
             </select>
             @if (horasDisponibles.length === 0 && nuevaCita.idMedico && nuevaCita.fecha) {
-              <small class="text-danger">⚠️ No hay horas disponibles para este médico en esta fecha</small>
-            }
-            @if (nuevaCita.idMedico && nuevaCita.fecha && horasDisponibles.length > 0) {
-              <small class="text-success">✅ {{ horasDisponibles.length }} hora(s) disponible(s)</small>
+              <small class="text-danger">⚠️ No hay horas disponibles</small>
             }
           </div>
 
+          <!-- DURACIÓN -->
+          <div class="col-md-4 mb-2">
+            <label class="form-label small fw-bold">Duración (min)</label>
+            <select class="form-control" [(ngModel)]="nuevaCita.duracion">
+              @for (d of duraciones; track d) {
+                <option [value]="d">{{ d }} minutos</option>
+              }
+            </select>
+          </div>
+
+          <!-- TIPO DE CITA -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Tipo de Cita</label>
+            <select class="form-control" [(ngModel)]="nuevaCita.tipoCita">
+              @for (t of tiposCita; track t) {
+                <option [value]="t">{{ t }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- ESTADO -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Estado</label>
+            <select class="form-control" [(ngModel)]="nuevaCita.estado">
+              @for (e of estadosCita; track e) {
+                <option [value]="e">{{ e }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- COSTO -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Costo (Bs.)</label>
+            <input type="number" class="form-control" placeholder="0" [(ngModel)]="nuevaCita.costo">
+          </div>
+
+          <!-- RECORDATORIO -->
+          <div class="col-md-6 mb-2 d-flex align-items-center">
+            <div class="form-check mt-4">
+              <input type="checkbox" class="form-check-input" id="recordatorio" [(ngModel)]="nuevaCita.recordatorio">
+              <label class="form-check-label" for="recordatorio">
+                <i class="bi bi-bell me-1"></i> Enviar recordatorio
+              </label>
+            </div>
+          </div>
+
+          <!-- MOTIVO -->
           <div class="col-12 mb-2">
-            <textarea class="form-control" 
-                      placeholder="Motivo de la cita" 
-                      rows="2" 
-                      [(ngModel)]="nuevaCita.motivo"></textarea>
+            <label class="form-label small fw-bold">Motivo de la cita</label>
+            <textarea class="form-control" placeholder="Motivo de la consulta" rows="2" [(ngModel)]="nuevaCita.motivo"></textarea>
+          </div>
+
+          <!-- NOTAS -->
+          <div class="col-12 mb-2">
+            <label class="form-label small fw-bold">Notas adicionales</label>
+            <textarea class="form-control" placeholder="Notas para el médico o paciente" rows="2" [(ngModel)]="nuevaCita.notas"></textarea>
           </div>
         </div>
 
         <div class="mt-3">
-          <button class="btn btn-success me-2" 
-                  (click)="guardarCita()"
-                  [disabled]="!nuevaCita.hora">
+          <button class="btn btn-success me-2" (click)="guardarCita()">
             <i class="bi bi-check-lg"></i> {{ editando ? 'Actualizar' : 'Guardar' }}
           </button>
 
@@ -122,6 +180,8 @@
             <i class="bi bi-x-lg"></i> Cancelar
           </button>
         </div>
+
+        <small class="text-muted mt-2 d-block">* Campos obligatorios</small>
 
       </div>
     </div>
