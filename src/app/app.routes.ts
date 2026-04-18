@@ -1,4 +1,4 @@
-import { Routes } from '@angular/router';
+import { Routes, provideRouter, withHashLocation } from '@angular/router';
 
 import { Pacientes } from './pacientes/pacientes';
 import { Medicos } from './medicos/medicos';
@@ -11,5 +11,11 @@ export const routes: Routes = [
     { path: 'citas', component: Citas },
     { path: 'dashboard', component: Dashboard },
     { path: '', redirectTo: 'dashboard', pathMatch: 'full' }
-
 ];
+
+// Para app.config.ts
+export const appConfig = {
+  providers: [
+    provideRouter(routes, withHashLocation())
+  ]
+};
