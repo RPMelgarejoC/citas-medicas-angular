@@ -1,26 +1,13 @@
-<!-- <p>medicos works!</p> -->
-
 <div class="container">
 
-  <h2 class="mb-4">Médicos</h2>
+  <h2 class="mb-4 fw-bold">Gestión de Médicos</h2>
 
-  <!-- FORMULARIO -->
-  <div class="card mb-4">
-    <div class="card-body">
-      <h5>Nuevo Médico</h5>
-
-      <input class="form-control mb-2" placeholder="Nombre" [(ngModel)]="nuevoMedico.nombre">
-      <input class="form-control mb-2" placeholder="Especialidad" [(ngModel)]="nuevoMedico.especialidad">
-      <input class="form-control mb-2" placeholder="Teléfono" [(ngModel)]="nuevoMedico.telefono">
-
-      <button class="btn btn-primary" (click)="agregarMedico()">
-        {{ editando ? 'Actualizar' : 'Guardar' }}
-      </button>
-    </div>
-  </div>
+  <button class="btn btn-primary mb-3 shadow-sm" (click)="abrirFormulario()">
+    <i class="bi bi-plus-circle me-1"></i> Nuevo Médico
+  </button>
 
   <!-- LISTA -->
-  <table class="table table-bordered">
+  <table class="table table-hover table-striped align-middle shadow-sm">
     <thead>
       <tr>
         <th>Nombre</th>
@@ -38,11 +25,11 @@
           <td>{{ m.telefono }}</td>
           <td>
             <button class="btn btn-warning btn-sm me-2" (click)="editarMedico(m)">
-              Editar
+              <i class="bi bi-pencil"></i> Editar
             </button>
 
             <button class="btn btn-danger btn-sm" (click)="eliminarMedico(m.id)">
-              Eliminar
+              <i class="bi bi-trash"></i> Eliminar
             </button>
           </td>
         </tr>
@@ -51,3 +38,55 @@
   </table>
 
 </div>
+
+<!-- MODAL UNIFICADO -->
+@if (mostrarFormulario) {
+  <!-- FONDO OSCURO -->
+  <div class="overlay" (click)="cerrarFormulario()"></div>
+
+  <!-- MODAL -->
+  <div class="modal-custom" (click)="$event.stopPropagation()">
+
+    <div class="card shadow">
+      <div class="card-body">
+
+        <h5 class="mb-3 text-primary">
+          {{ editando ? 'Editar Médico' : 'Nuevo Médico' }}
+        </h5>
+
+        <div class="row">
+          <div class="col-12 mb-2">
+            <input class="form-control" placeholder="Nombre completo" [(ngModel)]="nuevoMedico.nombre">
+          </div>
+
+          <div class="col-12 mb-2">
+            <input class="form-control" placeholder="Especialidad" [(ngModel)]="nuevoMedico.especialidad">
+          </div>
+
+          <div class="col-12 mb-2">
+            <input class="form-control" placeholder="Teléfono" [(ngModel)]="nuevoMedico.telefono">
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <button class="btn btn-success me-2" (click)="agregarMedico()">
+            <i class="bi bi-check-lg"></i> {{ editando ? 'Actualizar' : 'Guardar' }}
+          </button>
+
+          <button class="btn btn-secondary" (click)="cerrarFormulario()">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+}
+
+@if (mostrarToast) {
+  <div class="toast-custom bg-{{ tipoToast }}">
+    <i class="bi bi-{{ tipoToast === 'success' ? 'check-circle' : 'exclamation-circle' }} me-2"></i>
+    {{ mensajeToast }}
+  </div>
+}

@@ -1,43 +1,13 @@
-<!-- <p>citas works!</p> -->
- <div class="container">
+<div class="container">
 
-  <h2 class="mb-4">Citas Médicas</h2>
+  <h2 class="mb-4 fw-bold">Citas Médicas</h2>
 
-  <!-- FORMULARIO -->
-  <div class="card mb-4">
-    <div class="card-body">
-
-      <h5>Nueva Cita</h5>
-
-      <!-- PACIENTE -->
-      <select class="form-control mb-2" [(ngModel)]="nuevaCita.idPaciente">
-        <option value="">Seleccione paciente</option>
-        @for (p of pacientes; track p.id) {
-          <option [value]="p.id">{{ p.nombre }} {{ p.apellido }}</option>
-        }
-      </select>
-
-      <!-- MEDICO -->
-      <select class="form-control mb-2" [(ngModel)]="nuevaCita.idMedico">
-        <option value="">Seleccione médico</option>
-        @for (m of medicos; track m.id) {
-          <option [value]="m.id">{{ m.nombre }}</option>
-        }
-      </select>
-
-      <input type="date" class="form-control mb-2" [(ngModel)]="nuevaCita.fecha">
-      <input type="time" class="form-control mb-2" [(ngModel)]="nuevaCita.hora">
-      <input class="form-control mb-2" placeholder="Motivo" [(ngModel)]="nuevaCita.motivo">
-
-      <button class="btn btn-primary" (click)="guardarCita()">
-        {{ editando ? 'Actualizar' : 'Guardar' }}
-      </button>
-
-    </div>
-  </div>
+  <button class="btn btn-primary mb-3 shadow-sm" (click)="abrirFormulario()">
+    <i class="bi bi-plus-circle me-1"></i> Nueva Cita
+  </button>
 
   <!-- TABLA -->
-  <table class="table table-bordered">
+  <table class="table table-hover table-striped align-middle shadow-sm">
     <thead>
       <tr>
         <th>Paciente</th>
@@ -59,11 +29,11 @@
           <td>{{ c.motivo }}</td>
           <td>
             <button class="btn btn-warning btn-sm me-2" (click)="editarCita(c)">
-              Editar
+              <i class="bi bi-pencil"></i> Editar
             </button>
 
             <button class="btn btn-danger btn-sm" (click)="eliminarCita(c.id)">
-              Eliminar
+              <i class="bi bi-trash"></i> Eliminar
             </button>
           </td>
         </tr>
@@ -72,3 +42,83 @@
   </table>
 
 </div>
+
+<!-- MODAL UNIFICADO -->
+@if (mostrarFormulario) {
+  <!-- FONDO OSCURO -->
+  <div class="overlay" (click)="cerrarFormulario()"></div>
+
+  <!-- MODAL -->
+  <div class="modal-custom" (click)="$event.stopPropagation()">
+
+    <div class="card shadow">
+      <div class="card-body">
+
+        <h5 class="mb-3 text-primary">
+          {{ editando ? 'Editar Cita' : 'Nueva Cita' }}
+        </h5>
+
+        <div class="row">
+          <div class="col-12 mb-2">
+            <select class="form-control" [(ngModel)]="nuevaCita.idPaciente">
+              <option value="">Seleccione paciente</option>
+              @for (p of pacientes; track p.id) {
+                <option [value]="p.id">{{ p.nombre }} {{ p.apellido }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-12 mb-2">
+            <select class="form-control" [(ngModel)]="nuevaCita.idMedico">
+              <option value="">Seleccione médico</option>
+              @for (m of medicos; track m.id) {
+                <option [value]="m.id">{{ m.nombre }} - {{ m.especialidad }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <input type="date" class="form-control" [(ngModel)]="nuevaCita.fecha">
+          </div>
+
+          <div class="col-md-6 mb-2">
+            <!-- <input type="time" class="form-control" [(ngModel)]="nuevaCita.hora"> -->
+             <div class="col-12 mb-2">
+                <select class="form-control" [(ngModel)]="nuevaCita.hora">
+                  <option value="">Seleccione hora</option>
+                  @for (hora of opcionesHoras; track hora) {
+                    <option [value]="hora">{{ hora }}</option>
+                  }
+                </select>
+                <small class="text-muted">Intervalos de 30 minutos (8:00 a 17:30)</small>
+              </div>
+
+          </div>
+
+          <div class="col-12 mb-2">
+            <textarea class="form-control" placeholder="Motivo de la cita" rows="2" [(ngModel)]="nuevaCita.motivo"></textarea>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <button class="btn btn-success me-2" (click)="guardarCita()">
+            <i class="bi bi-check-lg"></i> {{ editando ? 'Actualizar' : 'Guardar' }}
+          </button>
+
+          <button class="btn btn-secondary" (click)="cerrarFormulario()">
+            <i class="bi bi-x-lg"></i> Cancelar
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+}
+
+@if (mostrarToast) {
+  <div class="toast-custom bg-{{ tipoToast }}">
+    <i class="bi bi-{{ tipoToast === 'success' ? 'check-circle' : 'exclamation-circle' }} me-2"></i>
+    {{ mensajeToast }}
+  </div>
+}

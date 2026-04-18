@@ -21,6 +21,12 @@ export class Medicos implements OnInit {
   editando: boolean = false;
   idEditando: number | null = null;
 
+  mostrarFormulario = false;
+
+  mostrarToast = false;
+  mensajeToast = '';
+  tipoToast = 'success';
+  
   nuevoMedico = {
     nombre: '',
     especialidad: '',
@@ -37,12 +43,36 @@ export class Medicos implements OnInit {
     this.cdr.detectChanges();
   }
 
-  async agregarMedico() {
+  abrirFormulario() {
+    this.mostrarFormulario = true;
+  }
 
+  cerrarFormulario() {
+    this.mostrarFormulario = false;
+    this.editando = false;
+    this.idEditando = null;
+
+    this.nuevoMedico = {
+      nombre: '',
+      especialidad: '',
+      telefono: ''
+    };
+  }
+
+  editarMedico(m: any) {
+    this.nuevoMedico = { ...m };
+    this.editando = true;
+    this.idEditando = m.id;
+    this.mostrarFormulario = true;
+  }
+
+  async agregarMedico() {
     if (!this.nuevoMedico.nombre || !this.nuevoMedico.especialidad) {
-      alert("Nombre y especialidad son obligatorios");
+      this.mostrarNotificacion('Nombre y especialidad son obligatorios', 'error');
       return;
     }
+
+    const eraEdicion = this.editando;
 
     const medico = {
       id: this.editando ? this.idEditando : Date.now(),
@@ -55,26 +85,35 @@ export class Medicos implements OnInit {
       await this.dbService.agregarMedico(medico);
     }
 
-    this.editando = false;
-    this.idEditando = null;
-
-    this.nuevoMedico = {
-      nombre: '',
-      especialidad: '',
-      telefono: ''
-    };
-
+    this.cerrarFormulario();
     await this.cargarMedicos();
-  }
 
-  editarMedico(m: any) {
-    this.nuevoMedico = { ...m };
-    this.editando = true;
-    this.idEditando = m.id;
+    this.mostrarNotificacion(
+      eraEdicion ? '✅ Médico actualizado correctamente' : '✅ Médico registrado correctamente'
+    );
   }
 
   async eliminarMedico(id: number) {
+    const confirmar = confirm('¿Seguro que deseas eliminar este médico?');
+    if (!confirmar) return;
+
     await this.dbService.eliminarMedico(id);
     await this.cargarMedicos();
+    
+    this.mostrarNotificacion('🗑️ Médico eliminado correctamente', 'success');
+  }
+
+  mostrarNotificacion(mensaje: string, tipo: string = 'success') {
+    this.mensajeToast = mensaje;
+    this.tipoToast = tipo;
+    this.mostrarToast = true;
+
+    // Forzar detección de cambios
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.mostrarToast = false;
+      this.cdr.detectChanges();
+    }, 2500);
   }
 }

@@ -1,47 +1,273 @@
-/* SIDEBAR */
-.sidebar {
-  width: 240px;
-  height: 100vh;
-  background-color: #1E293B;
-  position: fixed;
+/* ========================================
+   VARIABLES GLOBALES
+   ======================================== */
+:root {
+  --primary-color: #2563EB;
+  --primary-dark: #1E40AF;
+  --secondary-color: #10B981;
+  --danger-color: #EF4444;
+  --warning-color: #F59E0B;
+  --dark-bg: #0F172A;
+  --sidebar-bg: #0F172A;
+  --content-bg: #F1F5F9;
+  --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --transition-speed: 0.3s;
 }
 
+/* ========================================
+   SIDEBAR - MODERNO (CORREGIDO)
+   ======================================== */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background-color: #0F172A !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: all var(--transition-speed) ease;
+  box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+/* Scroll personalizado para sidebar */
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #1E293B;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #3B82F6;
+  border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background: #60A5FA;
+}
+
+/* Logo / Título */
+.sidebar h4 {
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #3B82F6;
+  margin-bottom: 25px !important;
+  font-size: 1.5rem;
+  color: #FFFFFF !important;
+}
+
+/* Navegación */
 .sidebar .nav-link {
-  color: #cbd5f5;
-  display: block;
-  margin-bottom: 10px;
-  padding: 10px;
-  border-radius: 8px;
+  color: #CBD5E1 !important;
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  border-radius: 12px;
   text-decoration: none;
+  transition: all 0.2s ease;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.sidebar .nav-link i {
+  font-size: 1.2rem;
+  width: 28px;
+  transition: transform 0.2s ease;
+  color: #94A3B8;
 }
 
 .sidebar .nav-link:hover {
-  background-color: #334155;
-  color: white;
+  background-color: #1E293B !important;
+  color: #FFFFFF !important;
 }
 
-/* CONTENIDO */
-.content {
-  margin-left: 240px;
-  width: 100%;
-  background-color: #F8FAFC;
-  min-height: 100vh;
+.sidebar .nav-link:hover i {
+  color: #FFFFFF;
+  transform: scale(1.1);
 }
 
+/* ESTILO PARA EL ENLACE ACTIVO */
 .sidebar .nav-link.active {
-  background-color: #3B82F6;
+  background-color: #3B82F6 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.sidebar .nav-link.active i {
+  color: #FFFFFF !important;
+}
+
+/* ========================================
+   CONTENIDO PRINCIPAL
+   ======================================== */
+.content {
+  margin-left: 260px;
+  width: calc(100% - 260px);
+  background-color: var(--content-bg);
+  min-height: 100vh;
+  transition: all var(--transition-speed) ease;
+  padding: 20px 30px;
+}
+
+/* ========================================
+   BOTÓN MÓVIL (TOGGLE)
+   ======================================== */
+.toggle-btn {
+  position: fixed;
+  top: 15px;
+  left: 15px;
+  z-index: 1100;
+  background-color: var(--primary-color);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 1.2rem;
+  box-shadow: var(--card-shadow);
+  transition: all 0.2s ease;
   color: white;
 }
 
-/* MOBILE */
-@media (max-width: 768px) {
+.toggle-btn:hover {
+  background-color: var(--primary-dark);
+  transform: scale(1.05);
+}
 
+/* ========================================
+   TARJETAS Y COMPONENTES GLOBALES
+   ======================================== */
+.card {
+  border: none;
+  border-radius: 16px;
+  box-shadow: var(--card-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background-color: #FFFFFF;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Botones globales */
+.btn {
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 8px 18px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #2563EB, #1D4ED8);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  color: white;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #10B981, #059669);
+  border: none;
+  color: white;
+}
+
+.btn-success:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+  color: white;
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border: none;
+  color: white;
+}
+
+.btn-warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  border: none;
+  color: white;
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+  color: white;
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #64748B, #475569);
+  border: none;
+  color: white;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1px);
+  color: white;
+}
+
+/* Tablas */
+.table {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  background-color: #FFFFFF;
+}
+
+.table thead th {
+  background: linear-gradient(135deg, #1E293B, #0F172A);
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 15px 12px;
+}
+
+.table tbody tr {
+  transition: background-color 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(59, 130, 246, 0.05);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+  background-color: rgba(0, 0, 0, 0.02);
+}
+
+/* Formularios */
+.form-control, .form-select {
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  padding: 10px 14px;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
+}
+
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
   .sidebar {
-    position: fixed;
-    left: -240px;
-    top: 0;
-    transition: 0.3s;
-    z-index: 1000;
+    left: -260px;
   }
 
   .sidebar.active {
@@ -50,6 +276,61 @@
 
   .content {
     margin-left: 0;
+    width: 100%;
+    padding: 70px 15px 20px 15px;
   }
+
+  .table thead th {
+    font-size: 0.85rem;
+    padding: 10px 8px;
+  }
+
+  .table td, .table th {
+    padding: 10px 8px;
+    font-size: 0.85rem;
+  }
+
+  .btn {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+}
+
+/* ========================================
+   ANIMACIONES GLOBALES
+   ======================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.content > * {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* ========================================
+   UTILITARIOS ADICIONALES
+   ======================================== */
+.badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #3B82F6, #A78BFA);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+h2, h3, h4, h5 {
+  color: #1E293B;
 }
 

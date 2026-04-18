@@ -23,6 +23,12 @@ export class Citas implements OnInit {
   editando: boolean = false;
   idEditando: number | null = null;
 
+  mostrarFormulario = false;
+
+  mostrarToast = false;
+  mensajeToast = '';
+  tipoToast = 'success';
+
   nuevaCita = {
     idPaciente: '',
     idMedico: '',
@@ -31,25 +37,167 @@ export class Citas implements OnInit {
     motivo: ''
   };
 
+  // Horario laboral
+  HORA_INICIO = 8;   // 8:00 AM
+  HORA_FIN = 18;     // 6:00 PM
+  DIAS_LABORALES = [1, 2, 3, 4, 5]; // Lunes a Viernes
+
+  // Opciones de horas con intervalos de 30 minutos
+  opcionesHoras: string[] = [];
+
   async ngOnInit() {
     await this.dbService.initDB();
     await this.cargarDatos();
+    this.generarOpcionesHoras();
+  }
+
+  // Generar horas cada 30 minutos: 8:00, 8:30, 9:00, ..., 17:30
+  generarOpcionesHoras() {
+    this.opcionesHoras = [];
+    for (let hora = this.HORA_INICIO; hora < this.HORA_FIN; hora++) {
+      this.opcionesHoras.push(`${hora.toString().padStart(2, '0')}:00`);
+      this.opcionesHoras.push(`${hora.toString().padStart(2, '0')}:30`);
+    }
   }
 
   async cargarDatos() {
     this.citas = await this.dbService.obtenerCitas();
     this.pacientes = await this.dbService.obtenerPacientes();
     this.medicos = await this.dbService.obtenerMedicos();
-
     this.cdr.detectChanges();
   }
 
-  async guardarCita() {
+  abrirFormulario() {
+    this.mostrarFormulario = true;
+  }
 
+  cerrarFormulario() {
+    this.mostrarFormulario = false;
+    this.editando = false;
+    this.idEditando = null;
+
+    this.nuevaCita = {
+      idPaciente: '',
+      idMedico: '',
+      fecha: '',
+      hora: '',
+      motivo: ''
+    };
+  }
+
+  editarCita(c: any) {
+    this.nuevaCita = { ...c };
+    this.editando = true;
+    this.idEditando = c.id;
+    this.mostrarFormulario = true;
+  }
+
+  // ✅ VALIDAR HORARIO LABORAL (CORREGIDO)
+  validarHorarioLaboral(fecha: string, hora: string): boolean {
+    // 🔥 CLAVE: Parsear fecha como local, no UTC
+    const partes = fecha.split('-');
+    const año = parseInt(partes[0]);
+    const mes = parseInt(partes[1]) - 1; // Meses en JS van 0-11
+    const dia = parseInt(partes[2]);
+    
+    const fechaObj = new Date(año, mes, dia);
+    const diaSemana = fechaObj.getDay(); // 0=Domingo, 1=Lunes...6=Sábado
+    
+    console.log('Fecha analizada:', fecha);
+    console.log('Día de semana (0=Domingo,1=Lunes):', diaSemana);
+    
+    // Días NO laborables: Domingo(0) o Sábado(6)
+    if (diaSemana === 0) {
+      this.mostrarNotificacion('❌ Los domingos no hay consulta médica', 'error');
+      return false;
+    }
+    
+    if (diaSemana === 6) {
+      this.mostrarNotificacion('❌ Los sábados no hay consulta médica', 'error');
+      return false;
+    }
+    
+    // Validar hora
+    if (!this.opcionesHoras.includes(hora)) {
+      this.mostrarNotificacion(`❌ Horario permitido: ${this.HORA_INICIO}:00 a ${this.HORA_FIN - 1}:30 (intervalos de 30 min)`, 'error');
+      return false;
+    }
+
+    return true;
+  }
+
+  obtenerNombreDia(dia: number): string {
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    return dias[dia];
+  }
+
+  // ✅ VALIDAR DOBLE RESERVA (con intervalo de 30 minutos)
+  async validarDobleReserva(): Promise<boolean> {
+    const citasExistentes = await this.dbService.obtenerCitas();
+    
+    // Buscar si el médico ya tiene cita en la misma fecha y hora exacta
+    const citaDuplicada = citasExistentes.find(c => 
+      Number(c.idMedico) === Number(this.nuevaCita.idMedico) && 
+      c.fecha === this.nuevaCita.fecha && 
+      c.hora === this.nuevaCita.hora &&
+      c.id !== this.idEditando
+    );
+
+    if (citaDuplicada) {
+      const medico = this.medicos.find(m => m.id == this.nuevaCita.idMedico);
+      this.mostrarNotificacion(`❌ El Dr. ${medico?.nombre} ya tiene una cita el ${this.nuevaCita.fecha} a las ${this.nuevaCita.hora}`, 'error');
+      return false;
+    }
+
+    return true;
+  }
+
+  // ✅ VALIDAR QUE EL PACIENTE NO TENGA DOBLE CITA (misma fecha y hora)
+  async validarDobleCitaPaciente(): Promise<boolean> {
+    const citasExistentes = await this.dbService.obtenerCitas();
+    
+    const citaDuplicada = citasExistentes.find(c => 
+      Number(c.idPaciente) === Number(this.nuevaCita.idPaciente) && 
+      c.fecha === this.nuevaCita.fecha && 
+      c.hora === this.nuevaCita.hora &&
+      c.id !== this.idEditando
+    );
+
+    if (citaDuplicada) {
+      const paciente = this.pacientes.find(p => p.id == this.nuevaCita.idPaciente);
+      this.mostrarNotificacion(`❌ El paciente ${paciente?.nombre} ya tiene una cita el ${this.nuevaCita.fecha} a las ${this.nuevaCita.hora}`, 'error');
+      return false;
+    }
+
+    return true;
+  }
+
+  async guardarCita() {
+    // Validaciones básicas
     if (!this.nuevaCita.idPaciente || !this.nuevaCita.idMedico) {
-      alert("Debe seleccionar paciente y médico");
+      this.mostrarNotificacion('❌ Debe seleccionar paciente y médico', 'error');
       return;
     }
+
+    if (!this.nuevaCita.fecha || !this.nuevaCita.hora) {
+      this.mostrarNotificacion('❌ Debe seleccionar fecha y hora', 'error');
+      return;
+    }
+
+    // Validar horario laboral
+    if (!this.validarHorarioLaboral(this.nuevaCita.fecha, this.nuevaCita.hora)) {
+      return;
+    }
+
+    // Validar doble reserva (médico)
+    const reservaValida = await this.validarDobleReserva();
+    if (!reservaValida) return;
+
+    // Validar doble cita del paciente
+    const pacienteValido = await this.validarDobleCitaPaciente();
+    if (!pacienteValido) return;
+
+    const eraEdicion = this.editando;
 
     const cita = {
       id: this.editando ? this.idEditando : Date.now(),
@@ -62,37 +210,43 @@ export class Citas implements OnInit {
       await this.dbService.agregarCita(cita);
     }
 
-    this.editando = false;
-    this.idEditando = null;
-
-    this.nuevaCita = {
-      idPaciente: '',
-      idMedico: '',
-      fecha: '',
-      hora: '',
-      motivo: ''
-    };
-
+    this.cerrarFormulario();
     await this.cargarDatos();
-  }
 
-  editarCita(c: any) {
-    this.nuevaCita = { ...c };
-    this.editando = true;
-    this.idEditando = c.id;
+    this.mostrarNotificacion(
+      eraEdicion ? '✅ Cita actualizada correctamente' : '✅ Cita registrada correctamente'
+    );
   }
 
   async eliminarCita(id: number) {
+    const confirmar = confirm('¿Seguro que deseas eliminar esta cita?');
+    if (!confirmar) return;
+
     await this.dbService.eliminarCita(id);
     await this.cargarDatos();
+    
+    this.mostrarNotificacion('🗑️ Cita eliminada correctamente', 'success');
   }
 
-  // 🔥 FUNCIONES CLAVE PARA MOSTRAR NOMBRES
   obtenerNombrePaciente(id: number) {
-    return this.pacientes.find(p => p.id == id)?.nombre || '';
+    const paciente = this.pacientes.find(p => p.id == id);
+    return paciente ? `${paciente.nombre} ${paciente.apellido}` : '';
   }
 
   obtenerNombreMedico(id: number) {
     return this.medicos.find(m => m.id == id)?.nombre || '';
+  }
+
+  mostrarNotificacion(mensaje: string, tipo: string = 'success') {
+    this.mensajeToast = mensaje;
+    this.tipoToast = tipo;
+    this.mostrarToast = true;
+
+    this.cdr.detectChanges();
+
+    setTimeout(() => {
+      this.mostrarToast = false;
+      this.cdr.detectChanges();
+    }, 2500);
   }
 }
