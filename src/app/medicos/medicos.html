@@ -7,35 +7,41 @@
   </button>
 
   <!-- LISTA -->
-  <table class="table table-hover table-striped align-middle shadow-sm">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Especialidad</th>
-        <th>Teléfono</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-
-    <tbody>
-      @for (m of medicos; track m.id) {
+  <div class="table-responsive">
+    <table class="table table-hover table-striped align-middle shadow-sm">
+      <thead>
         <tr>
-          <td>{{ m.nombre }}</td>
-          <td>{{ m.especialidad }}</td>
-          <td>{{ m.telefono }}</td>
-          <td>
-            <button class="btn btn-warning btn-sm me-2" (click)="editarMedico(m)">
-              <i class="bi bi-pencil"></i> Editar
-            </button>
-
-            <button class="btn btn-danger btn-sm" (click)="eliminarMedico(m.id)">
-              <i class="bi bi-trash"></i> Eliminar
-            </button>
-          </td>
+          <th>Nombre Completo</th>
+          <th>Cédula Profesional</th>
+          <th>Especialidad</th>
+          <th>Email</th>
+          <th>Años Exp.</th>
+          <th>Acciones</th>
         </tr>
-      }
-    </tbody>
-  </table>
+      </thead>
+
+      <tbody>
+        @for (m of medicos; track m.id) {
+          <tr>
+            <td>{{ m.nombre }} {{ m.apellidoPaterno }} {{ m.apellidoMaterno }}</td>
+            <td><strong>{{ m.cedulaProfesional }}</strong></td>
+            <td><span class="badge-especialidad">{{ m.especialidad }}</span></td>
+            <td>{{ m.email }}</td>
+            <td>{{ m.anosExperiencia }} años</td>
+            <td>
+              <button class="btn btn-warning btn-sm me-2" (click)="editarMedico(m)">
+                <i class="bi bi-pencil"></i> Editar
+              </button>
+
+              <button class="btn btn-danger btn-sm" (click)="eliminarMedico(m.id)">
+                <i class="bi bi-trash"></i> Eliminar
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
 
 </div>
 
@@ -55,17 +61,59 @@
         </h5>
 
         <div class="row">
-          <div class="col-12 mb-2">
-            <input class="form-control" placeholder="Nombre completo" [(ngModel)]="nuevoMedico.nombre">
+          <!-- NOMBRE -->
+          <div class="col-md-4 mb-2">
+            <label class="form-label small fw-bold">Nombre *</label>
+            <input class="form-control" placeholder="Nombre" [(ngModel)]="nuevoMedico.nombre">
           </div>
 
-          <div class="col-12 mb-2">
-            <input class="form-control" placeholder="Especialidad" [(ngModel)]="nuevoMedico.especialidad">
+          <!-- APELLIDO PATERNO -->
+          <div class="col-md-4 mb-2">
+            <label class="form-label small fw-bold">Apellido Paterno *</label>
+            <input class="form-control" placeholder="Apellido paterno" [(ngModel)]="nuevoMedico.apellidoPaterno">
           </div>
 
-          <div class="col-12 mb-2">
-            <input class="form-control" placeholder="Teléfono" [(ngModel)]="nuevoMedico.telefono">
+          <!-- APELLIDO MATERNO -->
+          <div class="col-md-4 mb-2">
+            <label class="form-label small fw-bold">Apellido Materno</label>
+            <input class="form-control" placeholder="Apellido materno" [(ngModel)]="nuevoMedico.apellidoMaterno">
           </div>
+
+          <!-- CÉDULA PROFESIONAL -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Cédula Profesional *</label>
+            <input class="form-control" placeholder="Ej: 12345" [(ngModel)]="nuevoMedico.cedulaProfesional">
+          </div>
+
+          <!-- ESPECIALIDAD -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Especialidad *</label>
+            <select class="form-control" [(ngModel)]="nuevoMedico.especialidad">
+              <option value="">Seleccione especialidad</option>
+              <option value="Cardiología">Cardiología</option>
+              <option value="Dermatología">Dermatología</option>
+              <option value="Ginecología">Ginecología</option>
+              <option value="Pediatría">Pediatría</option>
+              <option value="Traumatología">Traumatología</option>
+              <option value="Neurología">Neurología</option>
+              <option value="Oftalmología">Oftalmología</option>
+              <option value="Psiquiatría">Psiquiatría</option>
+              <option value="Medicina General">Medicina General</option>
+            </select>
+          </div>
+
+          <!-- EMAIL -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Email</label>
+            <input type="email" class="form-control" placeholder="correo@ejemplo.com" [(ngModel)]="nuevoMedico.email">
+          </div>
+
+          <!-- AÑOS DE EXPERIENCIA -->
+          <div class="col-md-6 mb-2">
+            <label class="form-label small fw-bold">Años de Experiencia</label>
+            <input type="number" class="form-control" placeholder="0" min="0" max="60" [(ngModel)]="nuevoMedico.anosExperiencia">
+          </div>
+
         </div>
 
         <div class="mt-3">
@@ -78,6 +126,8 @@
           </button>
         </div>
 
+        <small class="text-muted mt-2 d-block">* Campos obligatorios</small>
+
       </div>
     </div>
 
@@ -85,8 +135,8 @@
 }
 
 @if (mostrarToast) {
-  <div class="toast-custom bg-{{ tipoToast }}">
-    <i class="bi bi-{{ tipoToast === 'success' ? 'check-circle' : 'exclamation-circle' }} me-2"></i>
+  <div class="toast-custom" [class.bg-success]="tipoToast === 'success'" [class.bg-error]="tipoToast === 'error'">
+    <i class="bi bi-{{ tipoToast === 'success' ? 'check-circle-fill' : 'exclamation-triangle-fill' }} me-2"></i>
     {{ mensajeToast }}
   </div>
 }

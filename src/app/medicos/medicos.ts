@@ -29,8 +29,12 @@ export class Medicos implements OnInit {
   
   nuevoMedico = {
     nombre: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    cedulaProfesional: '',
+    email: '',
     especialidad: '',
-    telefono: ''
+    anosExperiencia: 0
   };
 
   async ngOnInit() {
@@ -54,8 +58,12 @@ export class Medicos implements OnInit {
 
     this.nuevoMedico = {
       nombre: '',
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      cedulaProfesional: '',
+      email: '',
       especialidad: '',
-      telefono: ''
+      anosExperiencia: 0
     };
   }
 
@@ -66,9 +74,75 @@ export class Medicos implements OnInit {
     this.mostrarFormulario = true;
   }
 
+  // Validar email
+  validarEmail(email: string): boolean {
+    if (!email) return true;
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      this.mostrarNotificacion('❌ Ingrese un email válido', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Validar cédula profesional (mínimo 5 caracteres)
+  validarCedula(cedula: string): boolean {
+    if (!cedula) {
+      this.mostrarNotificacion('❌ La cédula profesional es obligatoria', 'error');
+      return false;
+    }
+    
+    if (cedula.length < 5) {
+      this.mostrarNotificacion('❌ La cédula profesional debe tener al menos 5 caracteres', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Validar años de experiencia
+  validarExperiencia(anos: number): boolean {
+    if (anos < 0) {
+      this.mostrarNotificacion('❌ Los años de experiencia no pueden ser negativos', 'error');
+      return false;
+    }
+    
+    if (anos > 60) {
+      this.mostrarNotificacion('❌ Los años de experiencia no pueden superar 60', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
   async agregarMedico() {
-    if (!this.nuevoMedico.nombre || !this.nuevoMedico.especialidad) {
-      this.mostrarNotificacion('Nombre y especialidad son obligatorios', 'error');
+    // Validaciones
+    if (!this.nuevoMedico.nombre) {
+      this.mostrarNotificacion('❌ El nombre es obligatorio', 'error');
+      return;
+    }
+    
+    if (!this.nuevoMedico.apellidoPaterno) {
+      this.mostrarNotificacion('❌ El apellido paterno es obligatorio', 'error');
+      return;
+    }
+    
+    if (!this.nuevoMedico.cedulaProfesional) {
+      this.mostrarNotificacion('❌ La cédula profesional es obligatoria', 'error');
+      return;
+    }
+    
+    if (!this.validarCedula(this.nuevoMedico.cedulaProfesional)) {
+      return;
+    }
+    
+    if (this.nuevoMedico.email && !this.validarEmail(this.nuevoMedico.email)) {
+      return;
+    }
+    
+    if (!this.validarExperiencia(this.nuevoMedico.anosExperiencia)) {
       return;
     }
 
@@ -76,7 +150,9 @@ export class Medicos implements OnInit {
 
     const medico = {
       id: this.editando ? this.idEditando : Date.now(),
-      ...this.nuevoMedico
+      ...this.nuevoMedico,
+      // Campo nombre completo para compatibilidad
+      nombreCompleto: `${this.nuevoMedico.nombre} ${this.nuevoMedico.apellidoPaterno} ${this.nuevoMedico.apellidoMaterno}`
     };
 
     if (this.editando) {
@@ -85,7 +161,9 @@ export class Medicos implements OnInit {
       await this.dbService.agregarMedico(medico);
     }
 
+    // Cerrar modal ANTES de recargar datos
     this.cerrarFormulario();
+    
     await this.cargarMedicos();
 
     this.mostrarNotificacion(
@@ -108,7 +186,6 @@ export class Medicos implements OnInit {
     this.tipoToast = tipo;
     this.mostrarToast = true;
 
-    // Forzar detección de cambios
     this.cdr.detectChanges();
 
     setTimeout(() => {

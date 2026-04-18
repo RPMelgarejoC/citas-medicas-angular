@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-//import { NgFor } from '@angular/common';
 import { Db } from '../services/db';
 import { OnInit, ChangeDetectorRef } from '@angular/core';
 
@@ -26,14 +25,17 @@ export class Pacientes implements OnInit{
 
   mostrarToast = false;
   mensajeToast = '';
-  tipoToast = 'success'; // success, error
+  tipoToast = 'success';
 
   nuevoPaciente = {
     nombre: '',
-    apellido: '',
-    edad: 0,
-    telefono: '',
-    email: ''
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    fechaNacimiento: '',
+    celular: '',
+    email: '',
+    direccion: '',
+    seguroMedico: ''
   };
 
   async ngOnInit() {
@@ -44,9 +46,67 @@ export class Pacientes implements OnInit{
   async cargarPacientes() {
     this.pacientes = await this.dbService.obtenerPacientes();
     console.log("Pacientes cargados:", this.pacientes);
-    this.cdr.detectChanges(); // 🔥 CLAVE
+    this.cdr.detectChanges();
   }
 
+  // Calcular edad automáticamente desde fecha de nacimiento
+  calcularEdad(fechaNacimiento: string): number {
+    if (!fechaNacimiento) return 0;
+    
+    const hoy = new Date();
+    const nacimiento = new Date(fechaNacimiento);
+    
+    let edad = hoy.getFullYear() - nacimiento.getFullYear();
+    const mes = hoy.getMonth() - nacimiento.getMonth();
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--;
+    }
+    
+    return edad;
+  }
+
+  // Validar fecha de nacimiento (no puede ser futura)
+  validarFechaNacimiento(fecha: string): boolean {
+    if (!fecha) return true;
+    
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+    const fechaNac = new Date(fecha);
+    
+    if (fechaNac > hoy) {
+      this.mostrarNotificacion('❌ La fecha de nacimiento no puede ser futura', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Validar email
+  validarEmail(email: string): boolean {
+    if (!email) return true;
+    
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      this.mostrarNotificacion('❌ Ingrese un email válido', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // Validar celular (mínimo 8 dígitos)
+  validarCelular(celular: string): boolean {
+    if (!celular) return true;
+    
+    const soloNumeros = celular.replace(/\D/g, '');
+    if (soloNumeros.length < 8) {
+      this.mostrarNotificacion('❌ Ingrese un número de celular válido (mínimo 8 dígitos)', 'error');
+      return false;
+    }
+    
+    return true;
+  }
 
   abrirFormulario() {
     this.mostrarFormulario = true;
@@ -60,13 +120,16 @@ export class Pacientes implements OnInit{
 
     this.nuevoPaciente = {
       nombre: '',
-      apellido: '',
-      edad: 0,
-      telefono: '',
-      email: ''
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      fechaNacimiento: '',
+      celular: '',
+      email: '',
+      direccion: '',
+      seguroMedico: ''
     };
 
-    this.cdr.detectChanges(); // 🔥 aquí mejor
+    this.cdr.detectChanges();
   }
   
   editarPaciente(p: any) {
@@ -74,28 +137,56 @@ export class Pacientes implements OnInit{
     this.editando = true;
     this.idEditando = p.id;
 
-    this.mostrarFormulario = true; // 🔥 clave
+    this.mostrarFormulario = true;
   }
 
   async agregarPaciente() {
-
-    // VALIDACIÓN SIMPLE
-    if (!this.nuevoPaciente.nombre || !this.nuevoPaciente.apellido) {
-      alert("Nombre y apellido son obligatorios");
+    // VALIDACIONES
+    if (!this.nuevoPaciente.nombre) {
+      this.mostrarNotificacion('❌ El nombre es obligatorio', 'error');
+      return;
+    }
+    
+    if (!this.nuevoPaciente.apellidoPaterno) {
+      this.mostrarNotificacion('❌ El apellido paterno es obligatorio', 'error');
+      return;
+    }
+    
+    if (!this.nuevoPaciente.fechaNacimiento) {
+      this.mostrarNotificacion('❌ La fecha de nacimiento es obligatoria', 'error');
+      return;
+    }
+    
+    // Validar fecha de nacimiento
+    if (!this.validarFechaNacimiento(this.nuevoPaciente.fechaNacimiento)) {
+      return;
+    }
+    
+    // Validar email
+    if (this.nuevoPaciente.email && !this.validarEmail(this.nuevoPaciente.email)) {
+      return;
+    }
+    
+    // Validar celular
+    if (this.nuevoPaciente.celular && !this.validarCelular(this.nuevoPaciente.celular)) {
       return;
     }
 
     const eraEdicion = this.editando;
+    
+    // Calcular edad automáticamente
+    const edad = this.calcularEdad(this.nuevoPaciente.fechaNacimiento);
 
     const paciente = {
       id: this.editando ? this.idEditando : Date.now(),
-      ...this.nuevoPaciente
+      ...this.nuevoPaciente,
+      edad: edad  // Campo calculado para compatibilidad
     };
 
     if (this.editando) {
-      await this.dbService.actualizarPaciente(paciente); // 🔥 UPDATE
+      await this.dbService.actualizarPaciente(paciente);
     } else {
-      await this.dbService.agregarPaciente(paciente); // CREATE
+      await this.dbService.agregarPaciente(paciente);
     }
 
     this.editando = false;
@@ -103,17 +194,20 @@ export class Pacientes implements OnInit{
 
     this.nuevoPaciente = {
       nombre: '',
-      apellido: '',
-      edad: 0,
-      telefono: '',
-      email: ''
+      apellidoPaterno: '',
+      apellidoMaterno: '',
+      fechaNacimiento: '',
+      celular: '',
+      email: '',
+      direccion: '',
+      seguroMedico: ''
     };
 
     await this.cargarPacientes();
     this.cerrarFormulario();
 
     this.mostrarNotificacion(
-      eraEdicion ? 'Paciente actualizado correctamente' : 'Paciente registrado correctamente'
+      eraEdicion ? '✅ Paciente actualizado correctamente' : '✅ Paciente registrado correctamente'
     );
   }
 
@@ -133,7 +227,7 @@ export class Pacientes implements OnInit{
     await this.dbService.eliminarPaciente(id);
     await this.cargarPacientes();
     
-    this.mostrarNotificacion('Paciente eliminado correctamente', 'success');
+    this.mostrarNotificacion('🗑️ Paciente eliminado correctamente', 'success');
   }
   
   mostrarNotificacion(mensaje: string, tipo: string = 'success') {

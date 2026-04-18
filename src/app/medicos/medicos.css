@@ -1,4 +1,216 @@
 /* ========================================
+   MÉDICOS CSS - DISEÑO PROFESIONAL
+   ======================================== */
+
+/* Container principal */
+.container {
+  max-width: 1200px;
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Título principal */
+h2 {
+  color: #1E293B;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 12px;
+  margin-bottom: 25px !important;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, #8B5CF6, #A78BFA);
+  border-radius: 2px;
+}
+
+/* Botón nuevo médico */
+.btn-primary {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(139, 92, 246, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(139, 92, 246, 0.3);
+  background: linear-gradient(135deg, #7C3AED, #6D28D9);
+}
+
+/* ========================================
+   TABLA REDONDEADA (igual a pacientes)
+   ======================================== */
+.table-responsive {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.table {
+  margin-bottom: 0;
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+.table thead th {
+  background: linear-gradient(135deg, #1E293B, #0F172A);
+  color: white;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 15px 12px;
+  border: none;
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.table tbody tr:hover {
+  background-color: #F1F5F9;
+  transform: scale(1.01);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table tbody td {
+  padding: 14px 12px;
+  vertical-align: middle;
+  color: #334155;
+  font-size: 0.9rem;
+}
+
+/* Especialidad con badge */
+.table tbody td:nth-child(2) {
+  font-weight: 600;
+  color: #7C3AED;
+}
+
+/* Teléfono */
+.table tbody td:nth-child(3) {
+  font-family: monospace;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+}
+
+/* ========================================
+   MODAL MEJORADO
+   ======================================== */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-custom {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1001;
+  width: 90%;
+  max-width: 550px;
+  animation: slideUp 0.3s ease;
+}
+
+.modal-custom .card {
+  border: none;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.modal-custom .card-body {
+  padding: 28px;
+}
+
+.modal-custom h5 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 20px !important;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-custom h5::before {
+  content: '👨‍⚕️';
+  font-size: 1.5rem;
+}
+
+/* Labels del formulario */
+.form-label {
+  font-weight: 600;
+  color: #475569;
+  margin-bottom: 5px;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Campos de formulario */
+.form-control {
+  border: 2px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+  background-color: #F8FAFC;
+}
+
+.form-control:focus {
+  border-color: #8B5CF6;
+  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  background-color: white;
+  outline: none;
+}
+
+/* Botones del modal */
+.btn-success {
+  background: linear-gradient(135deg, #10B981, #059669);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #64748B, #475569);
+  border: none;
+  padding: 10px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);
+}
+
+/* ========================================
    TOAST NOTIFICACIONES
    ======================================== */
 .toast-custom {
@@ -16,6 +228,7 @@
   align-items: center;
   gap: 10px;
   min-width: 280px;
+  font-size: 0.9rem;
 }
 
 .bg-success { 
@@ -24,6 +237,73 @@
 
 .bg-error { 
   background: linear-gradient(135deg, #EF4444, #DC2626) !important;
+}
+
+/* ========================================
+   BOTONES DE ACCIÓN EN TABLA
+   ======================================== */
+.btn-warning {
+  background: linear-gradient(135deg, #F59E0B, #D97706);
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-warning:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+  color: white;
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #EF4444, #DC2626);
+  border: none;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-danger:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+}
+
+/* ========================================
+   ANIMACIONES
+   ======================================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -40%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
 
 @keyframes slideIn {
@@ -37,29 +317,70 @@
   }
 }
 
-/* Overlay y Modal (si no los tienes) */
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+/* ========================================
+   RESPONSIVE
+   ======================================== */
+@media (max-width: 768px) {
+  .modal-custom {
+    width: 95%;
+    max-width: none;
+  }
+  
+  .modal-custom .card-body {
+    padding: 20px;
+  }
+  
+  .table thead th {
+    font-size: 0.7rem;
+    padding: 10px 6px;
+  }
+  
+  .table tbody td {
+    font-size: 0.75rem;
+    padding: 8px 6px;
+  }
+  
+  .btn-warning, .btn-danger {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+  
+  .btn-primary {
+    padding: 8px 18px;
+    font-size: 0.85rem;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+  }
 }
 
-.modal-custom {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1001;
-  width: 90%;
-  max-width: 600px;
+@media (max-width: 480px) {
+  .table-responsive {
+    border-radius: 12px;
+  }
+  
+  .table thead th {
+    white-space: nowrap;
+  }
+  
+  .toast-custom {
+    top: 10px;
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    font-size: 0.8rem;
+    padding: 10px 16px;
+  }
 }
 
-.modal-custom .card {
-  max-height: 90vh;
-  overflow-y: auto;
+/* Badge para especialidad */
+.badge-especialidad {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+  padding: 4px 12px;
   border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: inline-block;
 }

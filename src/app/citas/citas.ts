@@ -45,6 +45,9 @@ export class Citas implements OnInit {
   // Opciones de horas con intervalos de 30 minutos
   opcionesHoras: string[] = [];
 
+  // Horas disponibles para el médico seleccionado
+  horasDisponibles: string[] = [];
+
   async ngOnInit() {
     await this.dbService.initDB();
     await this.cargarDatos();
@@ -83,6 +86,8 @@ export class Citas implements OnInit {
       hora: '',
       motivo: ''
     };
+    
+    this.horasDisponibles = [];
   }
 
   editarCita(c: any) {
@@ -90,21 +95,42 @@ export class Citas implements OnInit {
     this.editando = true;
     this.idEditando = c.id;
     this.mostrarFormulario = true;
+    
+    // Cargar horas disponibles para el médico seleccionado
+    if (this.nuevaCita.idMedico && this.nuevaCita.fecha) {
+      this.cargarHorasDisponibles();
+    }
   }
 
-  // ✅ VALIDAR HORARIO LABORAL (CORREGIDO)
+  // ✅ VALIDAR QUE LA FECHA NO SEA PASADA
+  validarFechaNoPasada(fecha: string): boolean {
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0); // Resetear hora para comparar solo fechas
+    
+    const partes = fecha.split('-');
+    const fechaSeleccionada = new Date(
+      parseInt(partes[0]), 
+      parseInt(partes[1]) - 1, 
+      parseInt(partes[2])
+    );
+    
+    if (fechaSeleccionada < hoy) {
+      this.mostrarNotificacion('❌ No se pueden agendar citas en fechas pasadas', 'error');
+      return false;
+    }
+    
+    return true;
+  }
+
+  // ✅ VALIDAR HORARIO LABORAL
   validarHorarioLaboral(fecha: string, hora: string): boolean {
-    // 🔥 CLAVE: Parsear fecha como local, no UTC
     const partes = fecha.split('-');
     const año = parseInt(partes[0]);
-    const mes = parseInt(partes[1]) - 1; // Meses en JS van 0-11
+    const mes = parseInt(partes[1]) - 1;
     const dia = parseInt(partes[2]);
     
     const fechaObj = new Date(año, mes, dia);
-    const diaSemana = fechaObj.getDay(); // 0=Domingo, 1=Lunes...6=Sábado
-    
-    console.log('Fecha analizada:', fecha);
-    console.log('Día de semana (0=Domingo,1=Lunes):', diaSemana);
+    const diaSemana = fechaObj.getDay();
     
     // Días NO laborables: Domingo(0) o Sábado(6)
     if (diaSemana === 0) {
@@ -117,25 +143,43 @@ export class Citas implements OnInit {
       return false;
     }
     
-    // Validar hora
-    if (!this.opcionesHoras.includes(hora)) {
-      this.mostrarNotificacion(`❌ Horario permitido: ${this.HORA_INICIO}:00 a ${this.HORA_FIN - 1}:30 (intervalos de 30 min)`, 'error');
-      return false;
-    }
-
     return true;
   }
 
-  obtenerNombreDia(dia: number): string {
-    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
-    return dias[dia];
+  // ✅ CARGAR HORAS DISPONIBLES PARA EL MÉDICO SELECCIONADO
+  async cargarHorasDisponibles() {
+    if (!this.nuevaCita.idMedico || !this.nuevaCita.fecha) {
+      this.horasDisponibles = [];
+      return;
+    }
+    
+    const citasExistentes = await this.dbService.obtenerCitas();
+    
+    // Obtener horas ya ocupadas por este médico en esta fecha
+    const horasOcupadas = citasExistentes
+      .filter(c => 
+        Number(c.idMedico) === Number(this.nuevaCita.idMedico) && 
+        c.fecha === this.nuevaCita.fecha &&
+        c.id !== this.idEditando // Excluir la cita actual si es edición
+      )
+      .map(c => c.hora);
+    
+    // Filtrar horas disponibles (todas las horas menos las ocupadas)
+    this.horasDisponibles = this.opcionesHoras.filter(h => !horasOcupadas.includes(h));
+    
+    // Si la hora actual seleccionada ya no está disponible, limpiarla
+    if (this.nuevaCita.hora && !this.horasDisponibles.includes(this.nuevaCita.hora)) {
+      this.nuevaCita.hora = '';
+      this.mostrarNotificacion('⚠️ La hora seleccionada ya no está disponible', 'error');
+    }
+    
+    this.cdr.detectChanges();
   }
 
-  // ✅ VALIDAR DOBLE RESERVA (con intervalo de 30 minutos)
+  // ✅ VALIDAR DOBLE RESERVA
   async validarDobleReserva(): Promise<boolean> {
     const citasExistentes = await this.dbService.obtenerCitas();
     
-    // Buscar si el médico ya tiene cita en la misma fecha y hora exacta
     const citaDuplicada = citasExistentes.find(c => 
       Number(c.idMedico) === Number(this.nuevaCita.idMedico) && 
       c.fecha === this.nuevaCita.fecha && 
@@ -152,7 +196,7 @@ export class Citas implements OnInit {
     return true;
   }
 
-  // ✅ VALIDAR QUE EL PACIENTE NO TENGA DOBLE CITA (misma fecha y hora)
+  // ✅ VALIDAR DOBLE CITA DEL PACIENTE
   async validarDobleCitaPaciente(): Promise<boolean> {
     const citasExistentes = await this.dbService.obtenerCitas();
     
@@ -172,6 +216,33 @@ export class Citas implements OnInit {
     return true;
   }
 
+  // ✅ CUANDO CAMBIA EL MÉDICO
+  onMedicoChange() {
+    this.nuevaCita.hora = '';
+    this.cargarHorasDisponibles();
+  }
+
+  // ✅ CUANDO CAMBIA LA FECHA
+  onFechaChange() {
+    this.nuevaCita.hora = '';
+    if (this.nuevaCita.fecha) {
+      // Validar fecha pasada
+      if (!this.validarFechaNoPasada(this.nuevaCita.fecha)) {
+        this.nuevaCita.fecha = '';
+        return;
+      }
+      // Validar horario laboral
+      if (!this.validarHorarioLaboral(this.nuevaCita.fecha, '')) {
+        this.nuevaCita.fecha = '';
+        return;
+      }
+      // Cargar horas disponibles
+      if (this.nuevaCita.idMedico) {
+        this.cargarHorasDisponibles();
+      }
+    }
+  }
+
   async guardarCita() {
     // Validaciones básicas
     if (!this.nuevaCita.idPaciente || !this.nuevaCita.idMedico) {
@@ -179,8 +250,18 @@ export class Citas implements OnInit {
       return;
     }
 
-    if (!this.nuevaCita.fecha || !this.nuevaCita.hora) {
-      this.mostrarNotificacion('❌ Debe seleccionar fecha y hora', 'error');
+    if (!this.nuevaCita.fecha) {
+      this.mostrarNotificacion('❌ Debe seleccionar una fecha', 'error');
+      return;
+    }
+    
+    if (!this.nuevaCita.hora) {
+      this.mostrarNotificacion('❌ Debe seleccionar una hora disponible', 'error');
+      return;
+    }
+
+    // Validar fecha pasada (otra vez por seguridad)
+    if (!this.validarFechaNoPasada(this.nuevaCita.fecha)) {
       return;
     }
 
