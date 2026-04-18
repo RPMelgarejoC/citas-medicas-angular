@@ -207,7 +207,7 @@ export class Pacientes implements OnInit{
     this.cerrarFormulario();
 
     this.mostrarNotificacion(
-      eraEdicion ? '✅ Paciente actualizado correctamente' : '✅ Paciente registrado correctamente'
+      eraEdicion ? 'Paciente actualizado correctamente' : 'Paciente registrado correctamente'
     );
   }
 

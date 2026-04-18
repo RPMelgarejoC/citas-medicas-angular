@@ -167,7 +167,7 @@ export class Medicos implements OnInit {
     await this.cargarMedicos();
 
     this.mostrarNotificacion(
-      eraEdicion ? '✅ Médico actualizado correctamente' : '✅ Médico registrado correctamente'
+      eraEdicion ? 'Médico actualizado correctamente' : 'Médico registrado correctamente'
     );
   }
 

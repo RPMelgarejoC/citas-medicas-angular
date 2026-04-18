@@ -307,7 +307,7 @@ export class Citas implements OnInit {
     await this.cargarDatos();
 
     this.mostrarNotificacion(
-      eraEdicion ? '✅ Cita actualizada correctamente' : '✅ Cita registrada correctamente'
+      eraEdicion ? 'Cita actualizada correctamente' : 'Cita registrada correctamente'
     );
   }
 

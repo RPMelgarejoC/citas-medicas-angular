@@ -1,0 +1,272 @@
+/* ========================================
+   DASHBOARD CSS - DISEÑO PROFESIONAL
+   ======================================== */
+
+.dashboard-container {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+/* Título */
+h2 {
+  color: #1E293B;
+  font-weight: 700;
+  position: relative;
+  padding-bottom: 12px;
+}
+
+h2::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(135deg, #3B82F6, #A78BFA);
+  border-radius: 2px;
+}
+
+/* Tarjetas principales */
+.card-stat {
+  background: white;
+  border: none;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card-stat:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+}
+
+.card-pacientes {
+  background: linear-gradient(135deg, #3B82F6, #2563EB);
+  color: white;
+}
+
+.card-medicos {
+  background: linear-gradient(135deg, #8B5CF6, #7C3AED);
+  color: white;
+}
+
+.card-citas {
+  background: linear-gradient(135deg, #06B6D4, #0EA5E9);
+  color: white;
+}
+
+.card-ingresos {
+  background: linear-gradient(135deg, #10B981, #059669);
+  color: white;
+}
+
+.card-stat .card-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.8;
+  margin-bottom: 8px;
+}
+
+.card-stat .card-value {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+  opacity: 0.3;
+}
+
+/* Tarjetas pequeñas */
+.card-stat-small {
+  background: white;
+  border: none;
+  border-radius: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.card-stat-small:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.card-stat-small .card-body {
+  padding: 16px 20px;
+}
+
+/* Header de tarjetas */
+.card-header-custom {
+  background: linear-gradient(135deg, #1E293B, #0F172A);
+  color: white;
+  padding: 14px 20px;
+  font-weight: 600;
+  border-bottom: none;
+}
+
+/* Lista de médicos */
+.list-group-item {
+  border-left: none;
+  border-right: none;
+  padding: 12px 20px;
+  transition: background 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #F8FAFC;
+}
+
+/* Badges de estado */
+.estado-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.estado-warning {
+  background: #FEF3C7;
+  color: #D97706;
+}
+
+.estado-info {
+  background: #E0F2FE;
+  color: #0284C7;
+}
+
+.estado-primary {
+  background: #E0E7FF;
+  color: #4F46E5;
+}
+
+.estado-success {
+  background: #DCFCE7;
+  color: #16A34A;
+}
+
+.estado-danger {
+  background: #FEE2E2;
+  color: #DC2626;
+}
+
+.estado-secondary {
+  background: #F3F4F6;
+  color: #6B7280;
+}
+
+/* Grupo de citas por fecha */
+.cita-fecha-group {
+  margin-bottom: 20px;
+}
+
+.fecha-header {
+  background: #F1F5F9;
+  padding: 10px 15px;
+  border-radius: 12px;
+  color: #1E293B;
+}
+
+.cita-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cita-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px 15px;
+  background: #F8FAFC;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.cita-item:hover {
+  background: #F1F5F9;
+  transform: translateX(5px);
+}
+
+.cita-hora {
+  min-width: 80px;
+  font-weight: 600;
+  color: #3B82F6;
+}
+
+.cita-info {
+  flex: 1;
+}
+
+.cita-estado {
+  min-width: 100px;
+  text-align: right;
+}
+
+/* Progress bars */
+.progress {
+  background-color: #E2E8F0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  border-radius: 10px;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card-stat .card-value {
+    font-size: 1.5rem;
+  }
+  
+  .stat-icon {
+    font-size: 1.8rem;
+  }
+  
+  .cita-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .cita-hora {
+    min-width: auto;
+  }
+  
+  .cita-estado {
+    min-width: auto;
+    text-align: left;
+  }
+  
+  .card-header-custom {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .card-stat .card-value {
+    font-size: 1.2rem;
+  }
+  
+  .card-title {
+    font-size: 0.7rem;
+  }
+  
+  .stat-icon {
+    font-size: 1.5rem;
+  }
+}

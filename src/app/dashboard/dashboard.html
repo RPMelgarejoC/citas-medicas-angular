@@ -1,105 +1,255 @@
-<!-- <p>dashboard works!</p> -->
+<div class="dashboard-container">
 
-<div class="container">
-
-  <h2 class="mb-4">Dashboard</h2>
-
-  <!-- CARDS -->
-  <div class="row mb-4">
-
-    <div class="col-md-4">
-      <div class="card text-white bg-primary shadow">
-        <div class="card-body">
-          <h5>Pacientes</h5>
-          <h2>{{ pacientes.length }}</h2>
-        </div>
-      </div>
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="fw-bold">
+      <i class="bi bi-speedometer2 me-2"></i> Dashboard
+    </h2>
+    <div class="text-muted">
+      <i class="bi bi-calendar3 me-1"></i> {{ hoy | date:'fullDate' }}
     </div>
-
-    <div class="col-md-4">
-      <div class="card text-white bg-success shadow">
-        <div class="card-body">
-          <h5>Médicos</h5>
-          <h2>{{ medicos.length }}</h2>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="card text-white bg-danger shadow">
-        <div class="card-body">
-          <h5>Citas</h5>
-          <h2>{{ citas.length }}</h2>
-        </div>
-      </div>
-    </div>
-
   </div>
 
-  <div class="row">
-
-    @for (fecha of obtenerFechas(); track fecha) {
-
-        <div class="col-md-6 mb-4">
-
-        <div class="card shadow-sm">
-
-            <div class="card-header bg-dark text-white">
-            📅 {{ fecha }}
-            </div>
-
-            <div class="card-body">
-
-            @for (c of citasAgrupadas[fecha]; track c.id) {
-
-                <div class="p-2 mb-2 rounded border d-flex justify-content-between align-items-center"
-                    [class]="'border-' + obtenerColorMedico(c.idMedico)">
-
-                <div>
-                    <strong>{{ c.hora }}</strong> <br>
-                    {{ obtenerNombreMedico(c.idMedico) }}
-                </div>
-
-                <span class="badge bg-{{ obtenerColorMedico(c.idMedico) }}">
-                    Cita
-                </span>
-
-                </div>
-
-            }
-
-            </div>
-
-        </div>
-
-        </div>
-
-    }
-
-    </div>
-  <!-- LISTA DE CITAS -->
-  <div class="card shadow">
-    <div class="card-body">
-
-      <h5 class="mb-3">Próximas Citas</h5>
-
-      <ul class="list-group">
-        @for (c of citas; track c.id) {
-          <li class="list-group-item d-flex justify-content-between align-items-center">
-
+  <!-- TARJETAS PRINCIPALES -->
+  <div class="row mb-4">
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="card-stat card-pacientes">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
             <div>
-              <strong>{{ c.fecha }}</strong> - {{ c.hora }} <br>
-              Médico: {{ obtenerNombreMedico(c.idMedico) }}
+              <h6 class="card-title">- Pacientes</h6>
+              <h2 class="card-value">{{ totalPacientes }}</h2>
+              <small class="text-success">
+                <i class="bi bi-person-plus"></i> Registrados
+              </small>
             </div>
+            <div class="stat-icon">
+              <i class="bi bi-people-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-            <span class="badge bg-{{ obtenerColorMedico(c.idMedico) }}">
-              Cita
-            </span>
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="card-stat card-medicos">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title">- Médicos</h6>
+              <h2 class="card-value">{{ totalMedicos }}</h2>
+              <small class="text-success">
+                <i class="bi bi-person-badge"></i> Especialistas
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="bi bi-person-badge-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-          </li>
-        }
-      </ul>
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="card-stat card-citas">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title">- Citas Totales</h6>
+              <h2 class="card-value">{{ totalCitas }}</h2>
+              <small class="text-info">
+                <i class="bi bi-calendar-check"></i> {{ citasHoy }} hoy
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="bi bi-calendar-check-fill"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
+    <div class="col-xl-3 col-md-6 mb-3">
+      <div class="card-stat card-ingresos">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <h6 class="card-title">- Ingresos Totales</h6>
+              <h2 class="card-value">{{ ingresosTotales | number }} Bs.</h2>
+              <small class="text-success">
+                <i class="bi bi-graph-up"></i> {{ ingresosMes | number }} Bs. este mes
+              </small>
+            </div>
+            <div class="stat-icon">
+              <i class="bi bi-cash-stack"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESTADÍSTICAS DETALLADAS -->
+  <div class="row mb-4">
+    <div class="col-md-4 mb-3">
+      <div class="card-stat-small">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <span>Citas Pendientes</span>
+            <span class="fw-bold text-warning">{{ citasPendientes }}</span>
+          </div>
+          <div class="progress mt-2" style="height: 8px;">
+            <div class="progress-bar bg-warning" 
+                 [style.width.%]="obtenerPorcentajeCitasPendientes()"
+                 role="progressbar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card-stat-small">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <span>Citas Completadas</span>
+            <span class="fw-bold text-success">{{ citasCompletadas }}</span>
+          </div>
+          <div class="progress mt-2" style="height: 8px;">
+            <div class="progress-bar bg-success" 
+                 [style.width.%]="obtenerPorcentajeCitasCompletadas()"
+                 role="progressbar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+      <div class="card-stat-small">
+        <div class="card-body">
+          <div class="d-flex justify-content-between">
+            <span>Citas Canceladas</span>
+            <span class="fw-bold text-danger">{{ citasCanceladas }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRÁFICOS Y TABLAS -->
+  <!--
+  <div class="row mb-4">
+  -->
+    <!-- Top Médicos -->
+     <!--
+    <div class="col-md-6 mb-3">
+      <div class="card-stat">
+        <div class="card-header-custom">
+          <i class="bi bi-trophy me-2"></i> Top 5 Médicos por Citas
+        </div>
+        <div class="card-body p-0">
+          <div class="list-group list-group-flush">
+            @for (medico of citasPorMedico; track medico.nombre; let i = $index) {
+              <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <span class="badge bg-primary rounded-pill me-2">{{ i + 1 }}</span>
+                  <strong>{{ medico.nombre }}</strong>
+                  <small class="text-muted ms-2">{{ medico.especialidad }}</small>
+                </div>
+                <div>
+                  <span class="badge bg-info">{{ medico.total }} citas</span>
+                  <span class="badge bg-success ms-1">{{ medico.completadas }} completadas</span>
+                </div>
+              </div>
+            }
+            @if (citasPorMedico.length === 0) {
+              <div class="text-center py-4 text-muted">
+                <i class="bi bi-inbox fs-1"></i>
+                <p class="mt-2">No hay datos disponibles</p>
+              </div>
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+    -->
+
+    <!-- Distribución por Tipo de Cita -->
+     <!--
+    <div class="col-md-6 mb-3">
+      <div class="card-stat">
+        <div class="card-header-custom">
+          <i class="bi bi-pie-chart me-2"></i> Distribución por Tipo de Cita
+        </div>
+        <div class="card-body">
+          @for (tipo of citasPorTipo; track tipo.nombre) {
+            <div class="mb-2">
+              <div class="d-flex justify-content-between mb-1">
+                <span>{{ tipo.nombre }}</span>
+                <span class="fw-bold">{{ tipo.total }}</span>
+              </div>
+              <div class="progress" style="height: 6px;">
+                <div class="progress-bar bg-info" 
+                     [style.width.%]="(tipo.total / totalCitas) * 100"
+                     role="progressbar"></div>
+              </div>
+            </div>
+          }
+          @if (citasPorTipo.length === 0) {
+            <div class="text-center py-4 text-muted">
+              <i class="bi bi-inbox fs-1"></i>
+              <p class="mt-2">No hay datos disponibles</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    -->
+    <!--
+  </div>
+    -->
+  <!-- CITAS POR FECHA -->
+  <div class="card-stat">
+    <div class="card-header-custom">
+      <i class="bi bi-calendar-week me-2"></i> Agenda de Citas
+    </div>
+    <div class="card-body">
+      @for (fecha of obtenerFechas(); track fecha) {
+        <div class="cita-fecha-group mb-3">
+          <div class="fecha-header">
+            <i class="bi bi-calendar-date me-2"></i>
+            <strong>{{ fecha }}</strong>
+            <span class="badge bg-secondary ms-2">{{ citasAgrupadas[fecha].length }} citas</span>
+          </div>
+          <div class="cita-list mt-2">
+            @for (cita of citasAgrupadas[fecha]; track cita.id) {
+              <div class="cita-item">
+                <div class="cita-hora">
+                  <i class="bi bi-clock"></i> {{ cita.hora }}
+                </div>
+                <div class="cita-info">
+                  <strong>{{ obtenerNombrePaciente(cita.idPaciente) }}</strong>
+                  <span class="text-muted"> - {{ cita.tipoCita }}</span>
+                  <br>
+                  <small>Médico: {{ obtenerNombreMedico(cita.idMedico) }}</small>
+                </div>
+                <div class="cita-estado">
+                  <span class="estado-badge estado-{{ obtenerColorEstado(cita.estado) }}">
+                    {{ cita.estado }}
+                  </span>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+      @if (obtenerFechas().length === 0) {
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-calendar-x fs-1"></i>
+          <p class="mt-2">No hay citas programadas</p>
+          <a routerLink="/citas" class="btn btn-sm btn-primary mt-2">
+            <i class="bi bi-plus-circle"></i> Agendar primera cita
+          </a>
+        </div>
+      }
     </div>
   </div>
 
